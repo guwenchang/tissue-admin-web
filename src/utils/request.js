@@ -59,7 +59,7 @@ service.interceptors.response.use((response) => {
       description: response.data.msg
     })
     // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject('error')
+    return Promise.reject('server error')
   } else {
     return response.data
   }

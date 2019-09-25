@@ -50,7 +50,7 @@
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-switch v-decorator="['status', { valuePropName: 'checked' }]" checkedChildren="启用" unCheckedChildren="禁用" defaultChecked />
+        <a-switch v-decorator="['status', { valuePropName: 'checked' }]" checkedChildren="启用" unCheckedChildren="禁用" />
       </a-form-item>
     </a-form>
   </a-modal>
@@ -125,13 +125,13 @@ export default {
               .then(res => {
                 this.$emit('ok')
                 this.visible = false
-              })
+              }).catch(error => console.log(error))
           } else {
             add(values)
               .then(res => {
                 this.$emit('ok')
                 this.visible = false
-              })
+              }).catch(error => console.log(error))
           }
         }
       })
