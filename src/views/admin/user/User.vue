@@ -73,7 +73,7 @@ const statusMap = {
 }
 
 export default {
-  name: 'TableList',
+  name: 'UserList',
   components: {
     STable,
     Ellipsis,
@@ -86,6 +86,10 @@ export default {
       queryParam: {},
       // 表头
       columns: [
+        {
+          title: '姓名',
+          dataIndex: 'realName'
+        },
         {
           title: '用户名',
           dataIndex: 'username'
@@ -154,8 +158,7 @@ export default {
             onChange: this.onSelectChange,
             getCheckboxProps: record => ({
               props: {
-                disabled: record.no === 'No 2', // Column configuration not to be checked
-                name: record.no
+                name: record.id
               }
             })
           }
