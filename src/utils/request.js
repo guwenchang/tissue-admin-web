@@ -53,7 +53,16 @@ service.interceptors.request.use(config => {
 
 // response interceptor
 service.interceptors.response.use((response) => {
-  return response.data
+  if (response.data.code !== 0) {
+    notification.error({
+      message: '服务器错误',
+      description: response.data.msg
+    })
+    // eslint-disable-next-line prefer-promise-reject-errors
+    return Promise.reject('error')
+  } else {
+    return response.data
+  }
 }, err)
 
 const installer = {

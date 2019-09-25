@@ -37,12 +37,20 @@
       :rowSelection="options.rowSelection"
       showPagination="auto"
     >
+      <span slot="roles" slot-scope="roles">
+        {{ roles.map(role => role.roleName).join(',') }}
+      </span>
       <span slot="status" slot-scope="status">
         {{ status | statusFilter }}
       </span>
       <span slot="action" slot-scope="text,record">
-        <template>
+        <template v-if="record.status === 1">
           <a @click="handleEdit(record)">修改</a>
+        </template>
+        <template v-if="record.status === 2">
+          <a @click="handleEdit(record)">修改</a>
+          <a-divider type="vertical" />
+          <a @click="handleDelete(record.id)">删除</a>
         </template>
       </span>
     </s-table>
@@ -53,7 +61,7 @@
 <script>
 import { STable, Ellipsis } from '@/components'
 import UserForm from './UserForm'
-import { list } from '@/api/adminUser'
+import { page, remove } from '@/api/adminUser'
 
 const statusMap = {
   1: {
@@ -87,6 +95,11 @@ export default {
           dataIndex: 'mobile'
         },
         {
+          title: '角色',
+          dataIndex: 'roles',
+          scopedSlots: { customRender: 'roles' }
+        },
+        {
           title: '状态',
           dataIndex: 'status',
           scopedSlots: { customRender: 'status' }
@@ -105,7 +118,7 @@ export default {
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         console.log('loadData.parameter', parameter)
-        return list(Object.assign(parameter, this.queryParam))
+        return page(Object.assign(parameter, this.queryParam))
           .then(res => {
             return res.data
           })
@@ -160,8 +173,21 @@ export default {
       this.$refs.createModal.add()
     },
     handleEdit (record) {
-      console.log(record)
       this.$refs.createModal.edit(record)
+    },
+    handleDelete (id) {
+      const _this = this
+      this.$confirm({
+        title: '确定要删除吗?',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk () {
+          remove(id).then(res => {
+            _this.$refs.table.refresh(true)
+          })
+        }
+      })
     },
     handleReset () {
       this.queryParam = {}
