@@ -31,6 +31,14 @@ export function update (parameter) {
   })
 }
 
+export function updateMenu (parameter) {
+  return axios({
+    url: '/sys/sys-role/menu',
+    method: 'put',
+    data: parameter
+  })
+}
+
 export function get (id) {
   return axios({
     url: '/sys/sys-role/' + id,

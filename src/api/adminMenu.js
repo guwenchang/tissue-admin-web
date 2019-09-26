@@ -1,16 +1,8 @@
 import { axios } from '@/utils/request'
-import qs from 'qs'
 
-export function page (parameter) {
+export function allTree () {
   return axios({
-    url: '/sys/sys-menu/page?' + qs.stringify(parameter),
-    method: 'get'
-  })
-}
-
-export function list (parameter) {
-  return axios({
-    url: '/sys/sys-menu/list?' + qs.stringify(parameter),
+    url: '/sys/sys-menu/tree',
     method: 'get'
   })
 }

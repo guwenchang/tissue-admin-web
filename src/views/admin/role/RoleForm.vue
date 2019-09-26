@@ -20,7 +20,7 @@
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="角色描述" v-decorator="['mobile']" />
+        <a-input placeholder="角色描述" v-decorator="['roleDesc']" />
       </a-form-item>
     </a-form>
   </a-modal>
@@ -78,7 +78,6 @@ export default {
       this.visible = true
       validateFields((errors, values) => {
         if (!errors) {
-          console.log('values', values)
           values.status = values.status ? 1 : 2
           if (this.mdl.id) {
             update(Object.assign(this.mdl, values))

@@ -2,67 +2,79 @@
   <a-modal :width="640" :visible="visible" :title="title" @ok="handleSubmit" @cancel="visible = false">
     <a-form @submit="handleSubmit" :form="form">
       <a-form-item
-        label="姓名"
+        label="父级菜单"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="姓名" v-decorator="['realName', {rules:[{required: true, message: '请输入真实姓名'}]}]" />
+        <a-tree-select
+          :treeData="menuTree"
+          placeholder="请选择父级菜单"
+          treeDefaultExpandAll
+          v-decorator="['parentCode']"
+        />
       </a-form-item>
       <a-form-item
-        label="用户名"
+        label="菜单名称"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="用户名" v-decorator="['username', {rules:[{required: true, message: '请输入用户名'}]}]" />
+        <a-input placeholder="菜单名称" v-decorator="['name', {rules:[{required: true, message: '请输入菜单名称'}]}]" />
       </a-form-item>
       <a-form-item
-        label="密码"
+        label="菜单编码"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="密码" type="password" v-decorator="['password', {rules:[{required: true, message: '请输入密码'}]}]" />
+        <a-input placeholder="菜单编码" v-decorator="['code', {rules:[{required: true, message: '请输入菜单编码'}]}]" />
       </a-form-item>
       <a-form-item
-        label="手机号"
+        label="菜单路径"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="手机号" v-decorator="['mobile', {rules:[{required: true, message: '请输入手机号'}]}]" />
+        <a-input placeholder="菜单路径" v-decorator="['path', {rules:[{required: true, message: '请输入菜单路径'}]}]" />
       </a-form-item>
       <a-form-item
-        label="角色"
+        label="菜单组件"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-select
-          mode="multiple"
-          size="default"
-          placeholder="角色"
-          v-decorator="['roleIds', {rules:[{required: true, message: '请输入分配角色'}]}]"
-        >
-          <a-select-option v-for="role in this.roleList" :key="role.id">
-            {{ role.roleName }}
-          </a-select-option>
-        </a-select>
+        <a-input placeholder="菜单组件" v-decorator="['component', {rules:[{required: true, message: '请输入菜单组件'}]}]" />
       </a-form-item>
       <a-form-item
-        label="状态"
+        label="菜单权限"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-switch v-decorator="['status', { valuePropName: 'checked' }]" checkedChildren="启用" unCheckedChildren="禁用" />
+        <a-input placeholder="菜单权限" v-decorator="['permission']" />
+      </a-form-item>
+      <a-form-item
+        label="菜单类型"
+        :labelCol="labelCol"
+        :wrapperCol="wrapperCol"
+      >
+        <a-radio-group v-decorator="['type']" buttonStyle="solid">
+          <a-radio-button value="1">菜单</a-radio-button>
+          <a-radio-button value="2">功能</a-radio-button>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item
+        label="排序值"
+        :labelCol="labelCol"
+        :wrapperCol="wrapperCol"
+      >
+        <a-input-number placeholder="排序值" v-decorator="['sort']" :min="1" :max="100" />
       </a-form-item>
     </a-form>
   </a-modal>
 </template>
 
 <script>
-import { get, add, update } from '@/api/adminUser'
-import { list } from '@/api/adminRole'
+import { get, add, update, allTree } from '@/api/adminMenu'
 import pick from 'lodash.pick'
 
 export default {
-  name: 'UserForm',
+  name: 'MenuForm',
   data () {
     return {
       labelCol: {
@@ -76,40 +88,41 @@ export default {
       mdl: {},
       visible: false,
       title: '',
-      roleList: [],
+      menuTree: [],
       form: this.$form.createForm(this)
     }
   },
   created () {
-    list({}).then(res => {
-      this.roleList = res.data
+    allTree().then(res => {
+      this.menuTree = res.data
     })
   },
   methods: {
     add () {
-      this.title = '新建用户'
+      this.title = '新建菜单'
       this.visible = true
       this.mdl = {
-        realName: '',
-        username: '',
-        password: '',
-        mobile: '',
-        roleIds: [],
-        status: true
+        parentCode: '',
+        name: '',
+        code: '',
+        path: '',
+        component: '',
+        permission: '',
+        type: '1',
+        sort: '1'
       }
       this.$nextTick(() => {
-        this.form.setFieldsValue({ ...this.mdl })
+        this.form.setFieldsValue(this.mdl)
       })
     },
     edit (record) {
       get(record.id).then(res => {
         this.mdl = res.data
-        this.mdl.roleIds = this.mdl.roles.map(role => role.id)
-        this.mdl.status = this.mdl.status === 1
+        this.mdl.type = this.mdl.type.toString()
         this.visible = true
-        this.title = '编辑用户'
+        this.title = '编辑菜单'
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'realName', 'username', 'password', 'mobile', 'roleIds', 'status'))
+          this.form.setFieldsValue(pick(this.mdl, 'parentCode', 'name', 'code', 'path', 'component', 'permission', 'type', 'sort'))
         })
       })
     },
@@ -118,7 +131,6 @@ export default {
       this.visible = true
       validateFields((errors, values) => {
         if (!errors) {
-          values.status = values.status ? 1 : 2
           if (this.mdl.id) {
             update(Object.assign(this.mdl, values))
               .then(res => {

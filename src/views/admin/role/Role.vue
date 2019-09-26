@@ -40,16 +40,20 @@
       <span slot="action" slot-scope="text,record">
         <template>
           <a @click="handleEdit(record)">修改</a>
+          <a-divider type="vertical" />
+          <a @click="handleUpdateMenu(record)">分配权限</a>
         </template>
       </span>
     </s-table>
     <RoleForm ref="createModal" @ok="handleOk" />
+    <RoleMenuForm ref="updateMenu" @ok="handleOk" />
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
 import RoleForm from './RoleForm'
+import RoleMenuForm from './RoleMenuForm'
 import { page } from '@/api/adminRole'
 
 export default {
@@ -57,7 +61,8 @@ export default {
   components: {
     STable,
     Ellipsis,
-    RoleForm
+    RoleForm,
+    RoleMenuForm
   },
   data () {
     return {
@@ -91,7 +96,6 @@ export default {
       ],
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        console.log('loadData.parameter', parameter)
         return page(Object.assign(parameter, this.queryParam))
           .then(res => {
             return res.data
@@ -142,6 +146,9 @@ export default {
     },
     handleEdit (record) {
       this.$refs.createModal.edit(record)
+    },
+    handleUpdateMenu (record) {
+      this.$refs.updateMenu.edit(record)
     },
     handleReset () {
       this.queryParam = {}

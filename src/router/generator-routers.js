@@ -69,7 +69,7 @@ const rootRouter = {
   name: '首页',
   path: '',
   component: 'BasicLayout',
-  redirect: '/dashboard',
+  redirect: '/dashboard/analysis',
   children: []
 }
 
