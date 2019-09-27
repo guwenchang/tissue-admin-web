@@ -10,7 +10,7 @@
           :treeData="menuTree"
           placeholder="请选择父级菜单"
           treeDefaultExpandAll
-          v-decorator="['parentCode']"
+          v-decorator="['parentId']"
         />
       </a-form-item>
       <a-form-item
@@ -19,13 +19,6 @@
         :wrapperCol="wrapperCol"
       >
         <a-input placeholder="菜单名称" v-decorator="['name', {rules:[{required: true, message: '请输入菜单名称'}]}]" />
-      </a-form-item>
-      <a-form-item
-        label="菜单编码"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-input placeholder="菜单编码" v-decorator="['code', {rules:[{required: true, message: '请输入菜单编码'}]}]" />
       </a-form-item>
       <a-form-item
         label="菜单路径"
@@ -40,6 +33,13 @@
         :wrapperCol="wrapperCol"
       >
         <a-input placeholder="菜单组件" v-decorator="['component', {rules:[{required: true, message: '请输入菜单组件'}]}]" />
+      </a-form-item>
+      <a-form-item
+        label="菜单图标"
+        :labelCol="labelCol"
+        :wrapperCol="wrapperCol"
+      >
+        <a-input placeholder="菜单图标" v-decorator="['icon']" />
       </a-form-item>
       <a-form-item
         label="菜单权限"
@@ -94,7 +94,13 @@ export default {
   },
   created () {
     allTree().then(res => {
+      const root = {
+        title: '根菜单',
+        value: '0',
+        children: []
+      }
       this.menuTree = res.data
+      this.menuTree.unshift(root)
     })
   },
   methods: {
@@ -102,11 +108,11 @@ export default {
       this.title = '新建菜单'
       this.visible = true
       this.mdl = {
-        parentCode: '',
+        parentId: '0',
         name: '',
-        code: '',
         path: '',
         component: '',
+        icon: '',
         permission: '',
         type: '1',
         sort: '1'
@@ -119,10 +125,11 @@ export default {
       get(record.id).then(res => {
         this.mdl = res.data
         this.mdl.type = this.mdl.type.toString()
+        this.mdl.parentId = this.mdl.parentId.toString()
         this.visible = true
         this.title = '编辑菜单'
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'parentCode', 'name', 'code', 'path', 'component', 'permission', 'type', 'sort'))
+          this.form.setFieldsValue(pick(this.mdl, 'parentId', 'name', 'path', 'component', 'icon', 'permission', 'type', 'sort'))
         })
       })
     },

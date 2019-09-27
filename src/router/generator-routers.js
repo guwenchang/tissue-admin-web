@@ -54,7 +54,9 @@ const constantRouterComponents = {
   // 系统设置
   'AdminUser': () => import('@/views/admin/user/User'),
   'AdminRole': () => import('@/views/admin/role/Role'),
-  'AdminMenu': () => import('@/views/admin/menu/Menu')
+  'AdminMenu': () => import('@/views/admin/menu/Menu'),
+  'AdminDict': () => import('@/views/admin/dict/Dict'),
+  'AdminLog': () => import('@/views/admin/opLog/Log')
 
 }
 
@@ -69,7 +71,7 @@ const rootRouter = {
   name: '首页',
   path: '',
   component: 'BasicLayout',
-  redirect: '/dashboard/analysis',
+  redirect: '/analysis',
   children: []
 }
 

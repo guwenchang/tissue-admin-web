@@ -40,7 +40,7 @@ export default {
         this.id = record.id
         this.visible = true
         this.title = record.roleName + '-分配权限'
-        this.checkedKeys = res.data.menus.map(menu => menu.code)
+        this.checkedKeys = res.data.menus.map(menu => menu.id.toString())
       })
     },
     handleSubmit () {
