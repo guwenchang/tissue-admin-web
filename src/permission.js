@@ -18,7 +18,7 @@ router.beforeEach((to, from, next) => {
   if (Vue.ls.get(ACCESS_TOKEN)) {
     /* has token */
     if (to.path === '/user/login') {
-      next({ path: '/analysis' })
+      next({ path: '/' })
       NProgress.done()
     } else {
       if (store.getters.roles.length === 0) {
