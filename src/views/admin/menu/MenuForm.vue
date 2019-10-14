@@ -14,11 +14,18 @@
         />
       </a-form-item>
       <a-form-item
-        label="菜单名称"
+        label="菜单标题"
         :labelCol="labelCol"
         :wrapperCol="wrapperCol"
       >
-        <a-input placeholder="菜单名称" v-decorator="['name', {rules:[{required: true, message: '请输入菜单名称'}]}]" />
+        <a-input placeholder="菜单标题" v-decorator="['title', {rules:[{required: true, message: '请输入菜单标题'}]}]" />
+      </a-form-item>
+      <a-form-item
+        label="菜单name"
+        :labelCol="labelCol"
+        :wrapperCol="wrapperCol"
+      >
+        <a-input placeholder="菜单name" v-decorator="['name', {rules:[{required: true, message: '请输入菜单name'}]}]" />
       </a-form-item>
       <a-form-item
         label="菜单路径"
@@ -110,6 +117,7 @@ export default {
       this.mdl = {
         parentId: '0',
         name: '',
+        title: '',
         path: '',
         component: '',
         icon: '',
@@ -129,7 +137,7 @@ export default {
         this.visible = true
         this.title = '编辑菜单'
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'parentId', 'name', 'path', 'component', 'icon', 'permission', 'type', 'sort'))
+          this.form.setFieldsValue(pick(this.mdl, 'parentId', 'name', 'title', 'path', 'component', 'icon', 'permission', 'type', 'sort'))
         })
       })
     },

@@ -69,7 +69,8 @@ const notFoundRouter = {
 const rootRouter = {
   key: '',
   name: 'index',
-  path: '',
+  title: '首页',
+  path: '/',
   component: 'BasicLayout',
   redirect: '/analysis',
   children: []
@@ -115,14 +116,14 @@ export const generator = (routerMap, parent) => {
       // 如果路由设置了 path，则作为默认 path，否则 路由地址 动态拼接生成如 /dashboard/workplace
       path: item.path || `${parent && parent.path || ''}/${item.key}`,
       // 路由名称，建议唯一
-      name: item.key || item.name || '',
+      name: item.name || '',
       // 该路由对应页面的 组件 :方案1
       component: constantRouterComponents[item.component],
       // 该路由对应页面的 组件 :方案2 (动态加载)
       // component: constantRouterComponents[item.component || item.key] || () => import(`@/views/${item.component}`),
 
       // meta: 页面标题, 菜单图标, 页面权限(供指令权限用，可去掉)
-      meta: { title: item.name, icon: item.icon || undefined, hiddenHeaderContent: hiddenHeaderContent, target: target, permission: item.permission }
+      meta: { title: item.title, icon: item.icon || undefined, hiddenHeaderContent: hiddenHeaderContent, target: target, permission: item.permission }
     }
     // 是否设置了隐藏菜单
     if (show === false) {
