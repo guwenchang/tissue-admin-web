@@ -16,6 +16,7 @@ import {
   Switch,
   Radio,
   Checkbox,
+  Cascader,
   Select,
   Card,
   Form,
@@ -58,6 +59,7 @@ Vue.use(Button)
 Vue.use(Switch)
 Vue.use(Radio)
 Vue.use(Checkbox)
+Vue.use(Cascader)
 Vue.use(Select)
 Vue.use(Card)
 Vue.use(Form)

@@ -57,8 +57,10 @@ const constantRouterComponents = {
   'AdminMenu': () => import('@/views/admin/menu/Menu'),
   'AdminDict': () => import('@/views/admin/dict/Dict'),
   'AdminLog': () => import('@/views/admin/opLog/Log'),
-  'AdminTag': () => import('@/views/admin/tag/Tag')
+  'AdminTag': () => import('@/views/admin/tag/Tag'),
 
+  // 代理商管理
+  'Agent': () => import('@/views/agent/Agent')
 }
 
 // 前端未找到页面路由（固定不用改）
