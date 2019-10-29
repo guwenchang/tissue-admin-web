@@ -56,7 +56,8 @@ const constantRouterComponents = {
   'AdminRole': () => import('@/views/admin/role/Role'),
   'AdminMenu': () => import('@/views/admin/menu/Menu'),
   'AdminDict': () => import('@/views/admin/dict/Dict'),
-  'AdminLog': () => import('@/views/admin/opLog/Log')
+  'AdminLog': () => import('@/views/admin/opLog/Log'),
+  'AdminTag': () => import('@/views/admin/tag/Tag')
 
 }
 
