@@ -73,7 +73,6 @@ export default {
       const validateFieldsKey = ['username', 'password']
       validateFields(validateFieldsKey, { force: true }, (err, values) => {
         if (!err) {
-          console.log('login form', values)
           const loginParams = { ...values }
           delete loginParams.username
           loginParams.username = values.username
@@ -102,11 +101,7 @@ export default {
       }, 1000)
     },
     requestFailed (err) {
-      this.$notification['error']({
-        message: '错误',
-        description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
-        duration: 4
-      })
+      console.log(err)
     }
   }
 }

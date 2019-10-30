@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { login, getInfo, logout } from '@/api/login'
+import { login, getInfo, logout, changePwd } from '@/api/login'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 
@@ -37,10 +37,20 @@ const user = {
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          console.log(response)
           const result = response.data
           Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', result.token)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    // 修改密码
+    ChangePwd ({ commit }, param) {
+      return new Promise((resolve, reject) => {
+        changePwd(param).then(response => {
           resolve()
         }).catch(error => {
           reject(error)
@@ -53,7 +63,6 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(response => {
           const result = response.data
-          console.log(result)
           if (result.roles && result.roles.length > 0) {
             // const role = result.role
             // role.permissions = result.role.permissions
@@ -85,9 +94,8 @@ const user = {
       return new Promise((resolve) => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
-        Vue.ls.remove(ACCESS_TOKEN)
-
         logout(state.token).then(() => {
+          Vue.ls.remove(ACCESS_TOKEN)
           resolve()
         }).catch(() => {
           resolve()

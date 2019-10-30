@@ -1,6 +1,23 @@
 <template>
   <a-modal :width="640" :visible="visible" :title="title" @ok="handleSubmit" @cancel="visible = false">
     <a-form @submit="handleSubmit" :form="form">
+      <!-- 总部人员才可以分配代理商，代理商只能默认当前代理商 -->
+      <a-form-item
+        v-if="this.$store.getters.userInfo.agentId === 0"
+        label="所属代理商"
+        :labelCol="labelCol"
+        :wrapperCol="wrapperCol"
+      >
+        <a-select
+          size="default"
+          placeholder="所属代理商"
+          v-decorator="['agentId', {rules:[{required: true, message: '请选择代理商'}]}]"
+        >
+          <a-select-option v-for="agent in this.agentList" :key="agent.id">
+            {{ agent.name }}
+          </a-select-option>
+        </a-select>
+      </a-form-item>
       <a-form-item
         label="姓名"
         :labelCol="labelCol"
@@ -58,7 +75,8 @@
 
 <script>
 import { get, add, update } from '@/api/adminUser'
-import { list } from '@/api/adminRole'
+import { list as roleList } from '@/api/adminRole'
+import { list as agentList } from '@/api/agent'
 import pick from 'lodash.pick'
 
 export default {
@@ -77,12 +95,25 @@ export default {
       visible: false,
       title: '',
       roleList: [],
+      agentList: [],
       form: this.$form.createForm(this)
     }
   },
   created () {
-    list({}).then(res => {
+    roleList({}).then(res => {
       this.roleList = res.data
+      if (this.$store.getters.userInfo.agentId !== 0) {
+        // 非总部人员不能操作超级管理员权限
+        this.roleList.shift()
+      }
+    })
+    agentList({}).then(res => {
+      this.agentList = res.data
+      // 总部作为特殊代理商存在
+      this.agentList.unshift({
+        id: 0,
+        name: '总部'
+      })
     })
   },
   methods: {
@@ -94,6 +125,7 @@ export default {
         username: '',
         password: '',
         mobile: '',
+        agentId: this.$store.getters.userInfo.agentId === 0 ? undefined : this.$store.getters.userInfo.agentId,
         roleIds: [],
         status: true
       }
@@ -109,7 +141,7 @@ export default {
         this.visible = true
         this.title = '编辑用户'
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'realName', 'username', 'password', 'mobile', 'roleIds', 'status'))
+          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'realName', 'username', 'password', 'mobile', 'roleIds', 'status'))
         })
       })
     },
@@ -126,7 +158,7 @@ export default {
                 this.visible = false
               }).catch(error => console.log(error))
           } else {
-            add(values)
+            add(Object.assign(this.mdl, values))
               .then(res => {
                 this.$emit('ok')
                 this.visible = false

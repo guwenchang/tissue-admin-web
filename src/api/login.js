@@ -8,6 +8,14 @@ export function login (parameter) {
   })
 }
 
+export function changePwd (parameter) {
+  return axios({
+    url: '/auth/changePassword',
+    method: 'post',
+    data: parameter
+  })
+}
+
 export function getInfo () {
   return axios({
     url: '/auth/info',

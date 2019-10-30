@@ -87,17 +87,14 @@ const rootRouter = {
 export const generatorDynamicRouter = () => {
   return new Promise((resolve, reject) => {
     loginService.getMenus().then(res => {
-      console.log('res', res)
       const result = res.data
       const menuNav = []
       //      后端数据, 根级树数组,  根级 PID
       // listToTree(result, childrenNav, 0)
       rootRouter.children = result
       menuNav.push(rootRouter)
-      console.log('menuNav', menuNav)
       const routers = generator(menuNav)
       routers.push(notFoundRouter)
-      console.log('routers', routers)
       resolve(routers)
     }).catch(err => {
       reject(err)

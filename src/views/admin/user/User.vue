@@ -37,9 +37,6 @@
       :rowSelection="options.rowSelection"
       showPagination="auto"
     >
-      <span slot="roles" slot-scope="roles">
-        {{ roles.map(role => role.roleName).join(',') }}
-      </span>
       <span slot="status" slot-scope="status">
         {{ status | statusFilter }}
       </span>
@@ -48,7 +45,7 @@
           <a @click="handleEdit(record)">修改</a>
         </template>
         <template v-if="record.status === 2">
-          <a @click="handleEdit(record)">修改</a>
+          <a @click="handleEdit(record.id)">修改</a>
           <a-divider type="vertical" />
           <a @click="handleDelete(record.id)">删除</a>
         </template>
@@ -100,8 +97,7 @@ export default {
         },
         {
           title: '角色',
-          dataIndex: 'roles',
-          scopedSlots: { customRender: 'roles' }
+          dataIndex: 'roleNames'
         },
         {
           title: '状态',

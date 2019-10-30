@@ -8,21 +8,11 @@
           <span>{{ nickname() }}</span>
         </span>
         <a-menu slot="overlay" class="user-dropdown-menu-wrapper">
-          <a-menu-item key="0">
-            <router-link :to="{ name: 'center' }">
-              <a-icon type="user"/>
-              <span>个人中心</span>
-            </router-link>
-          </a-menu-item>
           <a-menu-item key="1">
-            <router-link :to="{ name: 'settings' }">
+            <a href="javascript:;" @click="handleResetPwd">
               <a-icon type="setting"/>
-              <span>账户设置</span>
-            </router-link>
-          </a-menu-item>
-          <a-menu-item key="2" disabled>
-            <a-icon type="setting"/>
-            <span>测试</span>
+              <span>修改密码</span>
+            </a>
           </a-menu-item>
           <a-menu-divider/>
           <a-menu-item key="3">
@@ -34,6 +24,24 @@
         </a-menu>
       </a-dropdown>
     </div>
+    <a-modal title="修改密码" v-model="visible" @ok="handleOk">
+      <a-form @submit="handleOk" :form="form">
+        <a-form-item
+          label="密码"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <a-input placeholder="密码" type="password" v-decorator="['password', {rules:[{required: true, message: '请输入密码'}]}]" />
+        </a-form-item>
+        <a-form-item
+          label="确认密码"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <a-input placeholder="确认密码" type="password" v-decorator="['rePassword', {rules:[{required: true, message: '请确认密码'}]}]" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -43,15 +51,53 @@ import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'UserMenu',
+  data () {
+    return {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 13 }
+      },
+      visible: false,
+      mdl: {},
+      form: this.$form.createForm(this)
+    }
+  },
   components: {
     NoticeIcon
   },
   methods: {
-    ...mapActions(['Logout']),
+    ...mapActions(['Logout', 'ChangePwd']),
     ...mapGetters(['nickname', 'avatar']),
+    handleResetPwd () {
+      this.visible = true
+      this.mdl = {
+        password: '',
+        rePassword: ''
+      }
+      this.$nextTick(() => {
+        this.form.setFieldsValue({ ...this.mdl })
+      })
+    },
+    handleOk () {
+      const that = this
+      const { form: { validateFields } } = this
+      this.visible = true
+      validateFields((errors, values) => {
+        if (!errors) {
+          that.ChangePwd(Object.assign(this.mdl, values))
+            .then(res => {
+              this.$emit('ok')
+              this.visible = false
+            }).catch(error => console.log(error))
+        }
+      })
+    },
     handleLogout () {
       const that = this
-
       this.$confirm({
         title: '提示',
         content: '真的要注销登录吗 ?',
