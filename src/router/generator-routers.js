@@ -52,12 +52,17 @@ const constantRouterComponents = {
   'NotificationSettings': () => import('@/views/account/settings/Notification'),
 
   // 系统设置
-  'AdminUser': () => import('@/views/admin/user/User'),
   'AdminRole': () => import('@/views/admin/role/Role'),
   'AdminMenu': () => import('@/views/admin/menu/Menu'),
   'AdminDict': () => import('@/views/admin/dict/Dict'),
   'AdminLog': () => import('@/views/admin/opLog/Log'),
   'AdminTag': () => import('@/views/admin/tag/Tag'),
+
+  // 用户管理
+  'AdminUser': () => import('@/views/admin/user/User'),
+
+  // 广告管理
+  'AdMaterial': () => import('@/views/ad/material/Material'),
 
   // 代理商管理
   'Agent': () => import('@/views/agent/Agent')

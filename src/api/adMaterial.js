@@ -3,14 +3,14 @@ import qs from 'qs'
 
 export function page (parameter) {
   return axios({
-    url: '/sys/sys-dict/page?' + qs.stringify(parameter),
+    url: '/ad/material/page?' + qs.stringify(parameter),
     method: 'get'
   })
 }
 
 export function add (parameter) {
   return axios({
-    url: '/sys/sys-dict',
+    url: '/ad/material',
     method: 'post',
     data: parameter
   })
@@ -18,7 +18,7 @@ export function add (parameter) {
 
 export function update (parameter) {
   return axios({
-    url: '/sys/sys-dict',
+    url: '/ad/material',
     method: 'put',
     data: parameter
   })
@@ -26,21 +26,14 @@ export function update (parameter) {
 
 export function get (id) {
   return axios({
-    url: '/sys/sys-dict/' + id,
-    method: 'get'
-  })
-}
-
-export function listByType (type) {
-  return axios({
-    url: '/sys/sys-dict/type/' + type,
+    url: '/ad/material/' + id,
     method: 'get'
   })
 }
 
 export function remove (id) {
   return axios({
-    url: '/sys/sys-dict/' + id,
+    url: '/ad/material/' + id,
     method: 'delete'
   })
 }

@@ -66,7 +66,6 @@ export default {
       mdl: {},
       visible: false,
       title: '',
-      roleList: [],
       form: this.$form.createForm(this)
     }
   },
