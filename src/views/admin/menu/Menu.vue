@@ -40,7 +40,7 @@ export default {
       columns: [
         {
           title: '菜单名称',
-          dataIndex: 'name'
+          dataIndex: 'title'
         },
         {
           title: '菜单路径',
