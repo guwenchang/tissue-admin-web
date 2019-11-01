@@ -4,8 +4,21 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
-            <a-form-item label="字典类型">
-              <a-input v-model="queryParam.type" placeholder="字典类型"/>
+            <a-form-item label="模版名称">
+              <a-input v-model="queryParam.name" placeholder="模版名称"/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="8" :sm="24">
+            <a-form-item label="模版类型">
+              <a-select
+                size="default"
+                placeholder="模版类型"
+                v-model="queryParam.templateType"
+              >
+                <a-select-option v-for="item in this.templateTypeList" :key="item.value">
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
@@ -35,6 +48,9 @@
       <span slot="status" slot-scope="status">
         {{ status | statusFilter }}
       </span>
+      <span slot="templateType" slot-scope="templateType">
+        {{ templateType | templateTypeFilter }}
+      </span>
       <span slot="action" slot-scope="text,record">
         <template v-if="record.status === 1">
           <a @click="handleEdit(record)">修改</a>
@@ -46,14 +62,15 @@
         </template>
       </span>
     </s-table>
-    <DictForm ref="createModal" @ok="handleOk" />
+    <AdTemplateForm ref="createModal" @ok="handleOk" />
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
-import DictForm from './AdTemplateForm'
-import { page, remove } from '@/api/adminDict'
+import AdTemplateForm from './AdTemplateForm'
+import { page, remove } from '@/api/adTemplate'
+import { listByType } from '@/api/adminDict'
 
 const statusMap = {
   1: {
@@ -63,32 +80,32 @@ const statusMap = {
     text: '禁用'
   }
 }
+let that
 
 export default {
   name: 'AdTemplateList',
   components: {
     STable,
     Ellipsis,
-    DictForm
+    AdTemplateForm
   },
   data () {
     return {
       advanced: false,
+      templateTypeList: [],
+      templateTypeMap: {},
       // 查询参数
       queryParam: {},
       // 表头
       columns: [
         {
-          title: '字典类型',
-          dataIndex: 'type'
+          title: '模版名称',
+          dataIndex: 'name'
         },
         {
-          title: '字典label',
-          dataIndex: 'label'
-        },
-        {
-          title: '字典value',
-          dataIndex: 'value'
+          title: '模版类型',
+          dataIndex: 'templateType',
+          scopedSlots: { customRender: 'status' }
         },
         {
           title: '状态',
@@ -129,9 +146,20 @@ export default {
   filters: {
     statusFilter (type) {
       return statusMap[type].text
+    },
+    templateTypeFilter (type) {
+      return that.templateTypeMap[type]
     }
   },
   created () {
+    listByType('template_type').then(res => {
+      this.templateTypeList = res.data
+      const map = {}
+      for (var item of this.templateTypeList) {
+        map[item.value] = item.label
+      }
+      this.templateTypeMap = map
+    })
     this.tableOption()
   },
   methods: {

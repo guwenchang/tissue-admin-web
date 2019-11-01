@@ -175,8 +175,8 @@ export default {
       this.fileList = []
       this.mdl = {
         agentId: this.$store.getters.userInfo.agentId === 0 ? undefined : this.$store.getters.userInfo.agentId,
-        materialType: '',
-        sizeType: '',
+        materialType: undefined,
+        sizeType: undefined,
         name: '',
         url: '',
         status: true
