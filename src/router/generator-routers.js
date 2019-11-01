@@ -63,6 +63,7 @@ const constantRouterComponents = {
 
   // 广告管理
   'AdMaterial': () => import('@/views/ad/material/Material'),
+  'AdTemplate': () => import('@/views/ad/adTemplate/AdTemplate'),
 
   // 代理商管理
   'Agent': () => import('@/views/agent/Agent')
