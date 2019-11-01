@@ -26,6 +26,7 @@
         <a-select
           size="default"
           placeholder="素材类型"
+          @change="handleMaterialTypeChange"
           v-decorator="['materialType', {rules:[{required: true, message: '请选择素材类型'}]}]"
         >
           <a-select-option v-for="item in this.materialTypeList" :key="item.value">
@@ -62,7 +63,7 @@
       >
         <a-input placeholder="素材地址" v-decorator="['url', {rules:[{required: true, message: '请输入素材地址'}]}]" />
         <a-upload
-          accept=".png, .jpg, .jpeg, .gif"
+          :accept="accept"
           action="https://upload-z1.qiniup.com"
           listType="picture-card"
           :fileList="fileList"
@@ -77,10 +78,6 @@
           </div>
         </a-upload>
       </a-form-item>
-
-      <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-        <img alt="example" style="width: 100%" :src="previewImage" />
-      </a-modal>
       <a-form-item
         label="状态"
         :labelCol="labelCol"
@@ -89,6 +86,16 @@
         <a-switch v-decorator="['status', { valuePropName: 'checked' }]" checkedChildren="启用" unCheckedChildren="禁用" />
       </a-form-item>
     </a-form>
+    <a-modal :visible="preview" :footer="null" @cancel="handleCancel">
+      <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
+      <video-player
+        class="video-player vjs-custom-skin"
+        ref="videoPlayer"
+        :playsinline="true"
+        :options="playerOptions"
+      >
+      </video-player>
+    </a-modal>
   </a-modal>
 </template>
 
@@ -98,10 +105,14 @@ import { list as agentList } from '@/api/agent'
 import { listByType } from '@/api/adminDict'
 import { getUploadToken } from '@/api/common'
 import pick from 'lodash.pick'
-
+import { videoPlayer } from 'vue-video-player'
+import 'video.js/dist/video-js.css'
 const baseImgUrl = 'https://static.iweichan.com/'
 export default {
   name: 'MaterialForm',
+  components: {
+    videoPlayer
+  },
   data () {
     return {
       labelCol: {
@@ -113,6 +124,7 @@ export default {
         sm: { span: 13 }
       },
       uploadToken: '',
+      accept: '.png, .jpg, .jpeg, .gif',
       key: '',
       mdl: {},
       visible: false,
@@ -120,9 +132,28 @@ export default {
       materialTypeList: [],
       sizeTypeList: [],
       agentList: [],
-      previewVisible: false,
-      previewImage: '',
+      preview: false,
+      previewUrl: '',
+      previewType: '1',
       fileList: [],
+      playerOptions: {
+        playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
+        autoplay: false, // 如果true,浏览器准备好时开始回放。
+        muted: false, // 默认情况下将会消除任何音频。
+        loop: false, // 导致视频一结束就重新开始。
+        preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+        language: 'zh-CN',
+        aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+        fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+        sources: [],
+        notSupportedMessage: '此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
+        controlBar: {
+          timeDivider: true,
+          durationDisplay: true,
+          remainingTimeDisplay: false,
+          fullscreenToggle: true// 全屏按钮
+        }
+      },
       form: this.$form.createForm(this)
     }
   },
@@ -141,6 +172,7 @@ export default {
     add () {
       this.title = '新建素材'
       this.visible = true
+      this.fileList = []
       this.mdl = {
         agentId: this.$store.getters.userInfo.agentId === 0 ? undefined : this.$store.getters.userInfo.agentId,
         materialType: '',
@@ -194,12 +226,22 @@ export default {
         }
       })
     },
-    handleCancel () {
-      this.previewVisible = false
+    handlePreview () {
+      this.preview = true
+      this.previewUrl = this.mdl.url
+      this.previewType = this.mdl.materialType
+      if (this.mdl.materialType === '2') {
+        this.playerOptions.sources = [{
+          src: this.mdl.url, // 路径
+          type: 'video/mp4'// 类型
+        }]
+      }
     },
-    handlePreview (file) {
-      this.previewImage = file.url || file.thumbUrl
-      this.previewVisible = true
+    handleCancel () {
+      if (this.previewType === '2') {
+        this.$refs.videoPlayer.player.pause()
+      }
+      this.preview = false
     },
     handleChange ({ file, fileList }) {
       if (file.status === 'done') {
@@ -225,6 +267,13 @@ export default {
       return {
         token: this.uploadToken,
         key: this.key
+      }
+    },
+    handleMaterialTypeChange (value) {
+      if (value === '2') {
+        this.accept = '.mp4'
+      } else {
+        this.accept = '.png, .jpg, .jpeg, .gif'
       }
     }
   }
