@@ -2,7 +2,7 @@
   <div class="footer">
     <div class="copyright">
       Copyright
-      <a-icon type="copyright" /> 2018 <span>领纸吧管理平台</span>
+      <a-icon type="copyright" /> 2018 <span>西安联企信息科技有限公司</span>
     </div>
   </div>
 </template>

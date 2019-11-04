@@ -16,4 +16,4 @@ export const setDocumentTitle = function (title) {
   }
 }
 
-export const domTitle = '领纸吧'
+export const domTitle = '送纸啦'

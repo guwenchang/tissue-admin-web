@@ -88,7 +88,7 @@ export default {
       production: config.production,
       collapsed: false,
       menus: [],
-      title: '领纸吧管理平台'
+      title: '送纸啦管理平台'
     }
   },
   computed: {

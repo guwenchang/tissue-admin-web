@@ -5,11 +5,11 @@
         <div class="header">
           <a href="/">
             <img src="~@/assets/logo.svg" class="logo" alt="logo">
-            <span class="title">领纸吧管理平台</span>
+            <span class="title">送纸啦管理平台</span>
           </a>
         </div>
         <div class="desc">
-          领纸吧管理平台
+          送纸啦管理平台
         </div>
       </div>
 
@@ -17,7 +17,7 @@
 
       <div class="footer">
         <div class="copyright">
-          Copyright &copy; 2018 领纸吧管理平台
+          Copyright &copy; 2019 西安联企信息科技有限公司
         </div>
       </div>
     </div>

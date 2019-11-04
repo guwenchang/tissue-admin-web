@@ -105,7 +105,7 @@ export default {
         {
           title: '模版类型',
           dataIndex: 'templateType',
-          scopedSlots: { customRender: 'status' }
+          scopedSlots: { customRender: 'templateType' }
         },
         {
           title: '状态',
@@ -161,6 +161,9 @@ export default {
       this.templateTypeMap = map
     })
     this.tableOption()
+  },
+  beforeCreate: function () {
+    that = this
   },
   methods: {
     tableOption () {

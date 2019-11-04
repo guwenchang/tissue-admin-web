@@ -18,7 +18,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: '领纸吧管理平台',
+      default: '送纸啦管理平台',
       required: false
     },
     showTitle: {

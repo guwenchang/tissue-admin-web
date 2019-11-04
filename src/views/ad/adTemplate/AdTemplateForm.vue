@@ -1,5 +1,11 @@
 <template>
-  <a-modal :width="640" :visible="visible" :title="title" @ok="handleSubmit" @cancel="visible = false">
+  <a-drawer
+    :title="title"
+    width="960"
+    @close="visible = false"
+    :visible="visible"
+    :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
+  >
     <a-form @submit="handleSubmit" :form="form">
       <a-row class="form-row" type="flex">
         <a-col :span="12">
@@ -62,49 +68,72 @@
     </a-form>
     <!-- table -->
     <a-card>
-      <a-table
-        rowKey="materialId"
-        :columns="columns"
-        :dataSource="data"
-        :pagination="false"
-        :loading="memberLoading"
+      <a-list
+        :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
+        :dataSource="mdl.items"
       >
-        <template slot="startEndTime" slot-scope="text,record">
-          <a-range-picker
-            style="width: 100%"
-            :defaultValue="[moment(record.startTime,dateFormat), moment(record.endTime,dateFormat)]"
-            v-decorator="[
-              'startEndTime',
-              {rules: [{ required: true, message: '请选择起止日期' }]}
-            ]" />
-        </template>
-        <template slot="operation" slot-scope="text, record">
-          <template v-if="record.editable">
-            <span v-if="record.isNew">
-              <a @click="saveRow(record)">添加</a>
-              <a-divider type="vertical" />
-              <a-popconfirm title="是否要删除此行？" @confirm="remove(record.key)">
-                <a>删除</a>
-              </a-popconfirm>
-            </span>
-            <span v-else>
-              <a @click="saveRow(record)">保存</a>
-              <a-divider type="vertical" />
-              <a @click="cancel(record.key)">取消</a>
-            </span>
+        <a-list-item slot="renderItem" slot-scope="item">
+          <template>
+            <a-card :hoverable="true" style="width:240px">
+              <img
+                style="width:240px;height:240px;"
+                :alt="item.materialName"
+                :src="item.materialType === '1' ? item.materialUrl : 'http://img.iweichan.com/video.jpeg'"
+                slot="cover"
+              />
+              <template class="ant-card-actions" slot="actions">
+                <a v-if="item.editable" @click="handleSave(item)">保存</a>
+                <a v-else @click="handleEdit(item)">编辑</a>
+                <a @click="handlePreview(item)">预览</a>
+                <a @click="handleDelete(item)">删除</a>
+              </template>
+              <a-card-meta :title="item.name">
+                <template slot="description">
+                  <a-range-picker
+                    @change="onChange"
+                    v-if="item.editable"
+                    :defaultValue="[moment(item.startDate,dateFormat), moment(item.endDate,dateFormat)]"
+                  />
+                  <template v-else>
+                    <span style="line-height:32px">{{ item.startDate + '-' + item.endDate }}</span>
+                  </template>
+                </template>
+              </a-card-meta>
+            </a-card>
           </template>
-          <span v-else>
-            <a @click="toggle(record.key)">编辑</a>
-            <a-divider type="vertical" />
-            <a-popconfirm title="是否要删除此行？" @confirm="remove(record.key)">
-              <a>删除</a>
-            </a-popconfirm>
-          </span>
-        </template>
-      </a-table>
-      <a-button style="width: 100%; margin-top: 16px; margin-bottom: 8px" type="dashed" icon="plus" @click="newItem">新增成员</a-button>
+        </a-list-item>
+      </a-list>
+      <a-button style="width: 100%; margin-top: 16px; margin-bottom: 8px" type="dashed" icon="plus" @click="newIttem">添加素材</a-button>
     </a-card>
-  </a-modal>
+    <div
+      :style="{
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        width: '100%',
+        borderTop: '1px solid #e9e9e9',
+        padding: '10px 16px',
+        background: '#fff',
+        textAlign: 'right',
+      }"
+    >
+      <a-button :style="{marginRight: '8px'}" @click="visible = false">
+        取消
+      </a-button>
+      <a-button @click="handleSubmit" type="primary">保存</a-button>
+    </div>
+    <a-modal :visible="preview" :footer="null" @cancel="handlePreviewCancel">
+      <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
+      <video-player
+        v-if="previewType === '2'"
+        class="video-player vjs-custom-skin"
+        ref="videoPlayer"
+        :playsinline="true"
+        :options="playerOptions"
+      >
+      </video-player>
+    </a-modal>
+  </a-drawer>
 </template>
 
 <script>
@@ -113,9 +142,13 @@ import pick from 'lodash.pick'
 import { listByType } from '@/api/adminDict'
 import { list as agentList } from '@/api/agent'
 import moment from 'moment'
-
+import { videoPlayer } from 'vue-video-player'
+import 'video.js/dist/video-js.css'
 export default {
   name: 'AdTemplateForm',
+  components: {
+    videoPlayer
+  },
   data () {
     return {
       labelCol: {
@@ -131,39 +164,29 @@ export default {
       visible: false,
       templateTypeList: [],
       agentList: [],
+      startEndDate: [],
       title: '',
-      columns: [
-        {
-          title: '素材',
-          dataIndex: 'materialMame',
-          scopedSlots: { customRender: 'materialMame' }
-        },
-        {
-          title: '起止日期',
-          dataIndex: 'startTime',
-          scopedSlots: { customRender: 'startEndTime' }
-        },
-        {
-          title: '排序号',
-          dataIndex: 'sort',
-          scopedSlots: { customRender: 'sort' }
-        },
-        {
-          title: '操作',
-          key: 'action',
-          scopedSlots: { customRender: 'operation' }
+      preview: false,
+      previewUrl: '',
+      previewType: '1',
+      playerOptions: {
+        playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
+        autoplay: false, // 如果true,浏览器准备好时开始回放。
+        muted: false, // 默认情况下将会消除任何音频。
+        loop: false, // 导致视频一结束就重新开始。
+        preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+        language: 'zh-CN',
+        aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+        fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+        sources: [],
+        notSupportedMessage: '此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
+        controlBar: {
+          timeDivider: true,
+          durationDisplay: true,
+          remainingTimeDisplay: false,
+          fullscreenToggle: true// 全屏按钮
         }
-      ],
-      data: [
-        {
-          materialId: '1',
-          materialMame: '小明',
-          startTime: '2019-11-01',
-          endTime: '2019-11-11',
-          sort: 1
-        }
-      ],
-      memberLoading: false,
+      },
       form: this.$form.createForm(this)
     }
   },
@@ -177,6 +200,9 @@ export default {
   },
   methods: {
     moment,
+    onChange (date, dateString) {
+      this.startEndDate = dateString
+    },
     add () {
       this.title = '新建模版'
       this.visible = true
@@ -185,7 +211,7 @@ export default {
         templateType: undefined,
         name: '',
         status: true,
-        itemParams: []
+        items: []
       }
       this.$nextTick(() => {
         this.form.setFieldsValue({ ...this.mdl })
@@ -198,7 +224,7 @@ export default {
         this.visible = true
         this.title = '编辑模版'
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'templateType', 'name', 'itemParams', 'status'))
+          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'templateType', 'name', 'status'))
         })
       })
     },
@@ -215,7 +241,7 @@ export default {
                 this.visible = false
               }).catch(error => console.log(error))
           } else {
-            add(values)
+            add(Object.assign(this.mdl, values))
               .then(res => {
                 this.$emit('ok')
                 this.visible = false
@@ -224,15 +250,48 @@ export default {
         }
       })
     },
-    newItem () {
-      this.data.push({
-        materialId: '2',
+    handleEdit (item) {
+      console.log(item)
+      item.editable = true
+    },
+    handleSave (item) {
+      item.startDate = this.startEndDate[0]
+      item.endDate = this.startEndDate[1]
+      item.editable = false
+    },
+    handleDelete (item) {
+      this.items.splice(this.items.findIndex(i => i.id === item.materialId), 1)
+    },
+    handlePreview (item) {
+      this.preview = true
+      this.previewUrl = item.materialUrl
+      this.previewType = item.materialType
+      if (this.previewType === '2') {
+        this.playerOptions.sources = [{
+          src: item.materialUrl, // 路径
+          type: 'video/mp4'// 类型
+        }]
+      }
+    },
+    handlePreviewCancel () {
+      if (this.previewType === '2') {
+        this.$refs.videoPlayer.player.pause()
+      }
+      this.preview = false
+    },
+    newIttem () {
+      this.mdl.items.push({
+        materialId: 14,
+        editable: false,
         materialMame: '小明',
-        startTime: '2019-11-01',
-        endTime: '2019-11-01',
-        sort: 1
+        materialType: '1',
+        materialUrl: 'https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png',
+        startDate: '2019-11-01',
+        endDate: '2019-11-01'
       })
     }
   }
 }
 </script>
+<style lang="less" scoped>
+</style>
