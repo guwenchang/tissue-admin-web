@@ -31,7 +31,7 @@
           </a-col>
           <a-col :md="8" :sm="24">
             <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
-              <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
+              <a-button type="primary" @click="listData()">查询</a-button>
               <a-button style="margin-left: 8px" @click="handleReset()">重置</a-button>
             </span>
           </a-col>
@@ -42,41 +42,32 @@
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd()">新建</a-button>
     </div>
-
-    <s-table
-      ref="table"
-      size="default"
-      rowKey="id"
-      :columns="columns"
-      :data="loadData"
-      :alert="options.alert"
-      :rowSelection="options.rowSelection"
-      showPagination="auto"
+    <a-list
+      :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
+      :dataSource="dataSource"
+      :pagination="pagination"
+      :loading="loading"
     >
-      <span slot="materialType" slot-scope="materialType">
-        {{ materialType | materialTypeFilter }}
-      </span>
-      <span slot="sizeType" slot-scope="sizeType">
-        {{ sizeType | sizeTypeFilter }}
-      </span>
-      <span slot="status" slot-scope="status">
-        {{ status | statusFilter }}
-      </span>
-      <span slot="action" slot-scope="text,record">
-        <template v-if="record.status === 1">
-          <a @click="handleEdit(record)">修改</a>
-        </template>
-        <template v-if="record.status === 2">
-          <a @click="handleEdit(record)">修改</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete(record.id)">删除</a>
-        </template>
+      <a-list-item slot="renderItem" slot-scope="item">
         <template>
-          <a-divider type="vertical" />
-          <a @click="handlePreview(record)">预览</a>
+          <a-card :hoverable="true" style="width:240px">
+            <img
+              style="width:240px;height:300px;"
+              :alt="item.name"
+              :src="item.materialType === '1' ? item.url : 'http://img.iweichan.com/video.jpeg'"
+              slot="cover"
+            />
+            <template class="ant-card-actions" slot="actions">
+              <a-icon type="search" @click="handlePreview(item)" />
+              <a-icon type="edit" @click="handleEdit(item)" />
+              <a-icon type="delete" @click="handleDelete(item)" />
+            </template>
+            <a-card-meta :description="item.name">
+            </a-card-meta>
+          </a-card>
         </template>
-      </span>
-    </s-table>
+      </a-list-item>
+    </a-list>
     <MaterialForm ref="createModal" @ok="handleOk" />
     <a-modal :visible="preview" :footer="null" @cancel="handleCancel">
       <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
@@ -94,7 +85,6 @@
 </template>
 
 <script>
-import { STable, Ellipsis } from '@/components'
 import MaterialForm from './MaterialForm'
 import { page, remove } from '@/api/adMaterial'
 import { listByType } from '@/api/adminDict'
@@ -108,13 +98,13 @@ let that
 export default {
   name: 'MaterialList',
   components: {
-    STable,
-    Ellipsis,
     MaterialForm,
     videoPlayer
   },
   data () {
     return {
+      loading: true,
+      dataSource: [],
       preview: false,
       previewUrl: '',
       previewType: '1',
@@ -125,60 +115,17 @@ export default {
       materialTypeMap: {},
       sizeTypeList: [],
       sizeTypeMap: {},
-      // 表头
-      columns: [
-        {
-          title: '素材类型',
-          dataIndex: 'materialType',
-          scopedSlots: { customRender: 'materialType' }
+      pagination: {
+        onChange: page => {
+          this.pageParam.pageNo = page
+          this.listData()
         },
-        {
-          title: '尺寸类型',
-          dataIndex: 'sizeType',
-          scopedSlots: { customRender: 'sizeType' }
-        },
-        {
-          title: '素材名称',
-          dataIndex: 'name'
-        },
-        {
-          title: '素材格式',
-          dataIndex: 'format'
-        },
-        {
-          title: '状态',
-          dataIndex: 'status',
-          scopedSlots: { customRender: 'status' }
-        },
-        {
-          title: '更新时间',
-          dataIndex: 'updateTime'
-        },
-        {
-          title: '操作',
-          dataIndex: 'action',
-          width: '150px',
-          scopedSlots: { customRender: 'action' }
-        }
-      ],
-      // 加载数据方法 必须为 Promise 对象
-      loadData: parameter => {
-        return page(Object.assign(parameter, this.queryParam))
-          .then(res => {
-            return res.data
-          })
+        pageSize: 6
       },
-      selectedRowKeys: [],
-      selectedRows: [],
-      // custom table alert & rowSelection
-      options: {
-        alert: { show: false, clear: () => { this.selectedRowKeys = [] } },
-        rowSelection: {
-          selectedRowKeys: this.selectedRowKeys,
-          onChange: this.onSelectChange
-        }
+      pageParam: {
+        pageSize: 6,
+        pageNo: 1
       },
-      optionAlertShow: true,
       playerOptions: {
         playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
         autoplay: false, // 如果true,浏览器准备好时开始回放。
@@ -230,31 +177,18 @@ export default {
       }
       this.sizeTypeMap = map
     })
-    this.tableOption()
+    this.listData()
   },
   methods: {
-    tableOption () {
-      if (!this.optionAlertShow) {
-        this.options = {
-          alert: { show: true, clear: () => { this.selectedRowKeys = [] } },
-          rowSelection: {
-            selectedRowKeys: this.selectedRowKeys,
-            onChange: this.onSelectChange,
-            getCheckboxProps: record => ({
-              props: {
-                name: record.id
-              }
-            })
-          }
-        }
-        this.optionAlertShow = true
-      } else {
-        this.options = {
-          alert: false,
-          rowSelection: null
-        }
-        this.optionAlertShow = false
-      }
+    listData () {
+      this.loading = true
+      page({ ...this.pageParam, ...this.queryParam }).then(res => {
+        this.dataSource = res.data.records
+        this.pagination.current = res.data.current
+        this.pagination.total = res.data.total
+        this.pagination.pageSize = res.data.size
+        this.loading = false
+      })
     },
     handleAdd () {
       this.$refs.createModal.add()
@@ -262,7 +196,7 @@ export default {
     handleEdit (record) {
       this.$refs.createModal.edit(record)
     },
-    handleDelete (id) {
+    handleDelete (record) {
       const _this = this
       this.$confirm({
         title: '确定要删除吗?',
@@ -270,8 +204,8 @@ export default {
         okType: 'danger',
         cancelText: '取消',
         onOk () {
-          remove(id).then(res => {
-            _this.$refs.table.refresh(true)
+          remove(record.id).then(res => {
+            _this.listData()
           })
         }
       })
@@ -295,11 +229,13 @@ export default {
     },
     handleReset () {
       this.queryParam = {}
-      this.$refs.table.refresh(true)
+      this.pageParam.pageNo = 1
+      this.listData()
     },
     handleOk () {
       this.$message.info(`保存成功`)
-      this.$refs.table.refresh()
+      this.pageParam.pageNo = 1
+      this.listData()
     }
   }
 }
