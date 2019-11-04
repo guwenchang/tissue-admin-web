@@ -81,6 +81,7 @@
     <a-modal :visible="preview" :footer="null" @cancel="handleCancel">
       <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
       <video-player
+        v-if="previewType === '2'"
         class="video-player vjs-custom-skin"
         ref="videoPlayer"
         :playsinline="true"
