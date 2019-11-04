@@ -52,6 +52,10 @@
         {{ templateType | templateTypeFilter }}
       </span>
       <span slot="action" slot-scope="text,record">
+        <template>
+          <a @click="handlePreview(record)">预览</a>
+          <a-divider type="vertical" />
+        </template>
         <template v-if="record.status === 1">
           <a @click="handleEdit(record)">修改</a>
         </template>
@@ -63,13 +67,15 @@
       </span>
     </s-table>
     <AdTemplateForm ref="createModal" @ok="handleOk" />
+    <AdTemplatePreview ref="previewModal"/>
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
 import AdTemplateForm from './AdTemplateForm'
-import { page, remove } from '@/api/adTemplate'
+import AdTemplatePreview from './AdTemplatePreview'
+import { page, get, remove } from '@/api/adTemplate'
 import { listByType } from '@/api/adminDict'
 
 const statusMap = {
@@ -87,7 +93,8 @@ export default {
   components: {
     STable,
     Ellipsis,
-    AdTemplateForm
+    AdTemplateForm,
+    AdTemplatePreview
   },
   data () {
     return {
@@ -194,6 +201,12 @@ export default {
     },
     handleEdit (record) {
       this.$refs.createModal.edit(record)
+    },
+    handlePreview (record) {
+      const _this = this
+      get(record.id).then(res => {
+        _this.$refs.previewModal.preview(res.data.items)
+      })
     },
     handleDelete (id) {
       const _this = this

@@ -58,3 +58,10 @@ export function removeLoadingAnimate (id = '', timeout = 1500) {
     document.body.removeChild(document.getElementById(id))
   }, timeout)
 }
+
+export function nowBetweenDate (d1, d2) {
+  const now = new Date()
+  const startDate = new Date(d1.replace(/-/g, '/'))
+  const endDate = new Date(d2.replace(/-/g, '/'))
+  return now >= startDate && now <= endDate
+}
