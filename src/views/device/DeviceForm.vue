@@ -64,6 +64,7 @@ export default {
         xs: { span: 24 },
         sm: { span: 13 }
       },
+      areaData: [],
       mdl: {},
       visible: false,
       title: '',

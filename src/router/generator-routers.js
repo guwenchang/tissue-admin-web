@@ -66,7 +66,10 @@ const constantRouterComponents = {
   'AdTemplate': () => import('@/views/ad/adTemplate/AdTemplate'),
 
   // 代理商管理
-  'Agent': () => import('@/views/agent/Agent')
+  'Agent': () => import('@/views/agent/Agent'),
+
+  // 机构管理
+  'Place': () => import('@/views/place/Place')
 }
 
 // 前端未找到页面路由（固定不用改）

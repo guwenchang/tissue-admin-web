@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
-import store from '@/store'
+import router from '@/router'
+
 import {
   VueAxios
 } from './axios'
@@ -17,26 +18,11 @@ const service = axios.create({
 
 const err = (error) => {
   if (error.response) {
-    const data = error.response.data
-    const token = Vue.ls.get(ACCESS_TOKEN)
-    if (error.response.status === 403) {
+    if (error.response.status !== 200) {
       notification.error({
-        message: 'Forbidden',
-        description: data.message
+        message: '服务器错误',
+        description: error.response.data.msg
       })
-    }
-    if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
-      notification.error({
-        message: 'Unauthorized',
-        description: 'Authorization verification failed'
-      })
-      if (token) {
-        store.dispatch('Logout').then(() => {
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
-        })
-      }
     }
   }
   return Promise.reject(error)
@@ -54,12 +40,16 @@ service.interceptors.request.use(config => {
 // response interceptor
 service.interceptors.response.use((response) => {
   if (response.data.code !== 0) {
-    notification.error({
-      message: '服务器错误',
-      description: response.data.msg
-    })
-    // eslint-disable-next-line prefer-promise-reject-errors
-    return Promise.reject('server error')
+    if (response.data.code === 401) {
+      router.push({ path: '/user/login' })
+    } else {
+      notification.error({
+        message: '服务器错误',
+        description: response.data.msg
+      })
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject('server error')
+    }
   } else {
     return response.data
   }

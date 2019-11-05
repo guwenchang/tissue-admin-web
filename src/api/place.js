@@ -3,21 +3,21 @@ import qs from 'qs'
 
 export function page (parameter) {
   return axios({
-    url: '/ad/template/page?' + qs.stringify(parameter),
+    url: '/place/page?' + qs.stringify(parameter),
     method: 'get'
   })
 }
 
 export function list (parameter) {
   return axios({
-    url: '/ad/template/list?' + qs.stringify(parameter),
+    url: '/place/list?' + qs.stringify(parameter),
     method: 'get'
   })
 }
 
 export function add (parameter) {
   return axios({
-    url: '/ad/template',
+    url: '/place',
     method: 'post',
     data: parameter
   })
@@ -25,7 +25,7 @@ export function add (parameter) {
 
 export function update (parameter) {
   return axios({
-    url: '/ad/template',
+    url: '/place',
     method: 'put',
     data: parameter
   })
@@ -33,14 +33,14 @@ export function update (parameter) {
 
 export function get (id) {
   return axios({
-    url: '/ad/template/' + id,
+    url: '/place/' + id,
     method: 'get'
   })
 }
 
 export function remove (id) {
   return axios({
-    url: '/ad/template/' + id,
+    url: '/place/' + id,
     method: 'delete'
   })
 }
