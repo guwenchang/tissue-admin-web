@@ -67,11 +67,11 @@ export default {
         return nowBetweenDate(i.startDate, i.endDate)
       })
       this.visible = true
-      console.log(this.$refs.videoPlayer)
     },
     handleCancel () {
       console.log(this.$refs.videoPlayer)
       this.visible = false
+      this.items = []
     }
   }
 }
@@ -98,9 +98,5 @@ export default {
   }
   .ant-carousel >>> .custom-slick-arrow:hover {
     opacity: 0.5;
-  }
-
-  .ant-carousel >>> .slick-slide h3 {
-    color: #fff;
   }
 </style>
