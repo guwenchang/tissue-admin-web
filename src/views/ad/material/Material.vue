@@ -30,7 +30,7 @@
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
-            <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
+            <span class="table-page-search-submitButtons">
               <a-button type="primary" @click="listData()">查询</a-button>
               <a-button style="margin-left: 8px" @click="handleReset()">重置</a-button>
             </span>
@@ -108,7 +108,6 @@ export default {
       preview: false,
       previewUrl: '',
       previewType: '1',
-      advanced: false,
       // 查询参数
       queryParam: {},
       materialTypeList: [],
@@ -120,6 +119,7 @@ export default {
           this.pageParam.pageNo = page
           this.listData()
         },
+        showTotal: total => `共 ${total} 条`,
         pageSize: 6
       },
       pageParam: {

@@ -19,7 +19,7 @@
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
-            <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
+            <span class="table-page-search-submitButtons">
               <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
               <a-button style="margin-left: 8px" @click="handleReset()">重置</a-button>
             </span>
@@ -34,9 +34,6 @@
       rowKey="id"
       :columns="columns"
       :data="loadData"
-      :alert="options.alert"
-      :rowSelection="options.rowSelection"
-      showPagination="auto"
     >
       <span slot="action" slot-scope="text,record">
         <template>
@@ -62,7 +59,6 @@ export default {
   },
   data () {
     return {
-      advanced: false,
       // 查询参数
       queryParam: {},
       createTime: [],
@@ -101,47 +97,11 @@ export default {
           .then(res => {
             return res.data
           })
-      },
-      selectedRowKeys: [],
-      selectedRows: [],
-      // custom table alert & rowSelection
-      options: {
-        alert: { show: false, clear: () => { this.selectedRowKeys = [] } },
-        rowSelection: {
-          selectedRowKeys: this.selectedRowKeys,
-          onChange: this.onSelectChange
-        }
-      },
-      optionAlertShow: true
+      }
     }
   },
-  created () {
-    this.tableOption()
-  },
+  created () {},
   methods: {
-    tableOption () {
-      if (!this.optionAlertShow) {
-        this.options = {
-          alert: { show: true, clear: () => { this.selectedRowKeys = [] } },
-          rowSelection: {
-            selectedRowKeys: this.selectedRowKeys,
-            onChange: this.onSelectChange,
-            getCheckboxProps: record => ({
-              props: {
-                name: record.id
-              }
-            })
-          }
-        }
-        this.optionAlertShow = true
-      } else {
-        this.options = {
-          alert: false,
-          rowSelection: null
-        }
-        this.optionAlertShow = false
-      }
-    },
     handleDetail (record) {
       this.$refs.detailModal.detail(record)
     },

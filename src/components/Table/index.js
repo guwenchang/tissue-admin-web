@@ -11,7 +11,7 @@ export default {
 
       localLoading: false,
       localDataSource: [],
-      localPagination: Object.assign({}, this.pagination)
+      localPagination: Object.assign({ showTotal: total => `共 ${total} 条` }, this.pagination)
     }
   },
   props: Object.assign({}, T.props, {
@@ -39,12 +39,6 @@ export default {
       type: String,
       default: 'default'
     },
-    /**
-     * alert: {
-     *   show: true,
-     *   clear: Function
-     * }
-     */
     alert: {
       type: [Object, Boolean],
       default: null
@@ -53,24 +47,10 @@ export default {
       type: Object,
       default: null
     },
-    /** @Deprecated */
-    showAlertInfo: {
-      type: Boolean,
-      default: false
-    },
     showPagination: {
       type: String | Boolean,
       default: 'auto'
     },
-    /**
-     * enable page URI mode
-     *
-     * e.g:
-     * /users/1
-     * /users/2
-     * /users/3?queryParam=test
-     * ...
-     */
     pageURI: {
       type: Boolean,
       default: false

@@ -9,6 +9,7 @@
       ref="table"
       size="default"
       roeKey="id"
+      :pagination="false"
     >
       <span slot="icon" slot-scope="text,record">
         <template v-if="record.icon">

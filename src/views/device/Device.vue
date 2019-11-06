@@ -4,12 +4,12 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
-            <a-form-item label="代理商名称">
-              <a-input v-model="queryParam.name" placeholder="代理商名称"/>
+            <a-form-item label="设备编号">
+              <a-input v-model="queryParam.deviceNo" placeholder="设备编号"/>
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
-            <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
+            <span class="table-page-search-submitButtons">
               <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
               <a-button style="margin-left: 8px" @click="handleReset()">重置</a-button>
             </span>
@@ -17,87 +17,98 @@
         </a-row>
       </a-form>
     </div>
-
-    <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="handleAdd()">新建</a-button>
-    </div>
-
     <s-table
       ref="table"
       size="default"
       rowKey="id"
       :columns="columns"
       :data="loadData"
-      :alert="options.alert"
-      :rowSelection="options.rowSelection"
       showPagination="auto"
     >
       <span slot="status" slot-scope="status">
         {{ status | statusFilter }}
       </span>
+      <span slot="onlineStatus" slot-scope="onlineStatus">
+        {{ onlineStatus | onlineStatusFilter }}
+      </span>
       <span slot="action" slot-scope="text,record">
-        <template v-if="record.status === 1">
+        <template>
           <a @click="handleEdit(record)">修改</a>
-        </template>
-        <template v-if="record.status === 2">
-          <a @click="handleEdit(record)">修改</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete(record.id)">删除</a>
         </template>
       </span>
     </s-table>
-    <AgentForm ref="createModal" @ok="handleOk" />
+    <DeviceForm ref="createModal" @ok="handleOk" />
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
-import AgentForm from './AgentForm'
-import { page, remove } from '@/api/agent'
+import DeviceForm from './DeviceForm'
+import { page, remove } from '@/api/device'
 
 const statusMap = {
   1: {
-    text: '启用'
+    text: '待分配'
   },
   2: {
-    text: '禁用'
+    text: '已分配'
+  },
+  3: {
+    text: '报修中'
+  }
+}
+
+const onlineStatusMap = {
+  1: {
+    text: '在线'
+  },
+  2: {
+    text: '离线'
   }
 }
 
 export default {
-  name: 'AgentList',
+  name: 'DeviceList',
   components: {
     STable,
     Ellipsis,
-    AgentForm
+    DeviceForm
   },
   data () {
     return {
-      advanced: false,
       // 查询参数
       queryParam: {},
       // 表头
       columns: [
         {
-          title: '代理商名称',
-          dataIndex: 'name'
+          title: '设备编码',
+          dataIndex: 'deviceCode'
         },
         {
-          title: '联系人',
-          dataIndex: 'contact'
+          title: '所属机构',
+          dataIndex: 'placeName'
         },
         {
-          title: '所属区域',
-          dataIndex: 'areaInfo'
+          title: '运维人员',
+          dataIndex: 'ownerName'
         },
         {
-          title: '状态',
+          title: '设备状态',
           dataIndex: 'status',
           scopedSlots: { customRender: 'status' }
         },
         {
-          title: '更新时间',
-          dataIndex: 'updateTime'
+          title: '在线状态',
+          dataIndex: 'onlineStatus',
+          scopedSlots: { customRender: 'onlineStatus' }
+        },
+        {
+          title: '剩余干纸量',
+          dataIndex: 'dryWipesCount'
+        },
+        {
+          title: '剩余湿纸量',
+          dataIndex: 'wetWipesCount'
         },
         {
           title: '操作',
@@ -112,55 +123,19 @@ export default {
           .then(res => {
             return res.data
           })
-      },
-      selectedRowKeys: [],
-      selectedRows: [],
-      // custom table alert & rowSelection
-      options: {
-        alert: { show: false, clear: () => { this.selectedRowKeys = [] } },
-        rowSelection: {
-          selectedRowKeys: this.selectedRowKeys,
-          onChange: this.onSelectChange
-        }
-      },
-      optionAlertShow: true
+      }
     }
   },
   filters: {
     statusFilter (type) {
       return statusMap[type].text
+    },
+    onlineStatusFilter (type) {
+      return onlineStatusMap[type].text
     }
   },
-  created () {
-    this.tableOption()
-  },
+  created () {},
   methods: {
-    tableOption () {
-      if (!this.optionAlertShow) {
-        this.options = {
-          alert: { show: true, clear: () => { this.selectedRowKeys = [] } },
-          rowSelection: {
-            selectedRowKeys: this.selectedRowKeys,
-            onChange: this.onSelectChange,
-            getCheckboxProps: record => ({
-              props: {
-                name: record.id
-              }
-            })
-          }
-        }
-        this.optionAlertShow = true
-      } else {
-        this.options = {
-          alert: false,
-          rowSelection: null
-        }
-        this.optionAlertShow = false
-      }
-    },
-    handleAdd () {
-      this.$refs.createModal.add()
-    },
     handleEdit (record) {
       this.$refs.createModal.edit(record)
     },

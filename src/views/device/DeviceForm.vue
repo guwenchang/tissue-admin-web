@@ -1,59 +1,148 @@
 <template>
-  <a-modal :width="640" :visible="visible" :title="title" @ok="handleSubmit" @cancel="visible = false">
+  <a-drawer
+    :title="title"
+    width="960"
+    @close="visible = false"
+    :visible="visible"
+    :wrapStyle="{height: 'calc(100% - 108px)',overflow: 'auto',paddingBottom: '108px'}"
+  >
     <a-form @submit="handleSubmit" :form="form">
-      <a-form-item
-        label="代理商名称"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-input placeholder="代理商名称" v-decorator="['name', {rules:[{required: true, message: '请输入代理商名称'}]}]" />
-      </a-form-item>
-      <a-form-item
-        label="联系人"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-input placeholder="联系人" v-decorator="['contact', {rules:[{required: true, message: '请输入联系人'}]}]" />
-      </a-form-item>
-      <a-form-item
-        label="联系人电话"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-input placeholder="联系人电话" v-decorator="['contactMobile', {rules:[{required: true, message: '请输入联系人电话'}]}]" />
-      </a-form-item>
-      <a-form-item
-        label="省市县"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-cascader :options="options" @change="onChange" placeholder="请选择省市县" v-decorator="['areas', {rules:[{required: true, message: '请输入区域'}]}]" />
-      </a-form-item>
-      <a-form-item
-        label="详细地址"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-input placeholder="详细地址" v-decorator="['address']" />
-      </a-form-item>
-      <a-form-item
-        label="状态"
-        :labelCol="labelCol"
-        :wrapperCol="wrapperCol"
-      >
-        <a-switch v-decorator="['status', { valuePropName: 'checked' }]" checkedChildren="启用" unCheckedChildren="禁用" />
-      </a-form-item>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <!-- 总部人员才可以分配代理商，代理商只能默认当前代理商 -->
+          <a-form-item
+            v-if="this.$store.getters.userInfo.agentId === 0"
+            label="代理商"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-select
+              size="default"
+              placeholder="代理商"
+              v-decorator="['agentId', {rules:[{required: true, message: '请选择代理商'}]}]"
+            >
+              <a-select-option v-for="agent in this.agentList" :key="agent.id">
+                {{ agent.name }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="机构"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-select
+              size="default"
+              placeholder="机构"
+              v-decorator="['placeId', {rules:[{required: true, message: '请选择机构'}]}]"
+            >
+              <a-select-option v-for="item in this.placeList" :key="item.id">
+                {{ item.name }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <a-form-item
+            label="设备编码"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-input placeholder="设备编码" v-decorator="['deviceCode']" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="设备ID"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-input placeholder="设备ID" v-decorator="['deviceId']" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <a-form-item
+            label="具体位置"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-input placeholder="具体位置" v-decorator="['position']" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="设备状态"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-select
+              size="default"
+              placeholder="状态"
+              v-decorator="['status']"
+            >
+              <a-select-option value="1">待分配</a-select-option>
+              <a-select-option value="2">已分配</a-select-option>
+              <a-select-option value="3">报修中</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <a-form-item
+            label="开机时间"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-time-picker v-decorator="['openTime']" format="HH:mm" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="关机时间"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-time-picker v-decorator="['closeTime']" format="HH:mm" />
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
-  </a-modal>
+    <div
+      :style="{
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        width: '100%',
+        borderTop: '1px solid #e9e9e9',
+        padding: '10px 16px',
+        background: '#fff',
+        textAlign: 'right',
+      }"
+    >
+      <a-button :style="{marginRight: '8px'}" @click="visible = false">
+        取消
+      </a-button>
+      <a-button @click="handleSubmit" type="primary">保存</a-button>
+    </div>
+  </a-drawer>
 </template>
 
 <script>
-import { get, add, update } from '@/api/agent'
+import { get, update } from '@/api/device'
+import { list as placeList } from '@/api/place'
 import pick from 'lodash.pick'
-import options from '@/utils/city'
+import { list as agentList } from '@/api/agent'
+import moment from 'moment'
 
 export default {
-  name: 'AgentForm',
+  name: 'DeviceForm',
   data () {
     return {
       labelCol: {
@@ -64,48 +153,36 @@ export default {
         xs: { span: 24 },
         sm: { span: 13 }
       },
-      areaData: [],
       mdl: {},
       visible: false,
+      agentList: [],
+      placeList: [],
       title: '',
-      roleList: [],
-      form: this.$form.createForm(this),
-      options: options
+      form: this.$form.createForm(this)
     }
   },
-  created () {},
+  created () {
+    agentList({}).then(res => {
+      this.agentList = res.data
+    })
+    placeList().then(res => {
+      this.placeList = res.data
+    })
+  },
   methods: {
-    onChange (value, selectedOptions) {
-      this.mdl.province = value[0]
-      this.mdl.city = value[1]
-      this.mdl.area = value[2]
-      this.mdl.areaInfo = selectedOptions.map(item => item.label).join('/')
-    },
-    add () {
-      this.title = '新建代理商'
-      this.visible = true
-      this.areas = []
-      this.mdl = {
-        name: '',
-        contact: '',
-        contactMobile: '',
-        address: '',
-        areas: [],
-        status: true
-      }
-      this.$nextTick(() => {
-        this.form.setFieldsValue({ ...this.mdl })
-      })
-    },
+    moment,
     edit (record) {
       get(record.id).then(res => {
         this.mdl = res.data
-        this.mdl.status = this.mdl.status === 1
-        this.mdl.areas = [this.mdl.province, this.mdl.city, this.mdl.area]
+        this.mdl.status = this.mdl.status.toString()
+        this.mdl.openTime = moment(this.mdl.openTime, 'HH:mm')
+        this.mdl.closeTime = moment(this.mdl.closeTime, 'HH:mm')
         this.visible = true
-        this.title = '编辑代理商'
+        this.title = '编辑设备'
+        console.log(this.mdl)
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'name', 'contact', 'areas', 'contactMobile', 'address', 'status'))
+          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'placeId', 'deviceCode', 'deviceId', 'position',
+            'status', 'openTime', 'closeTime'))
         })
       })
     },
@@ -114,23 +191,16 @@ export default {
       this.visible = true
       validateFields((errors, values) => {
         if (!errors) {
-          values.status = values.status ? 1 : 2
-          if (this.mdl.id) {
-            update(Object.assign(this.mdl, values))
-              .then(res => {
-                this.$emit('ok')
-                this.visible = false
-              }).catch(error => console.log(error))
-          } else {
-            add(Object.assign(this.mdl, values))
-              .then(res => {
-                this.$emit('ok')
-                this.visible = false
-              }).catch(error => console.log(error))
-          }
+          update(Object.assign(this.mdl, values))
+            .then(res => {
+              this.$emit('ok')
+              this.visible = false
+            }).catch(error => console.log(error))
         }
       })
     }
   }
 }
 </script>
+<style lang="less" scoped>
+</style>
