@@ -186,7 +186,12 @@ export default {
         this.$refs.videoPlayer.player.pause()
       }
       this.preview = false
-    }
+    },
+    handleReset () {
+      this.queryParam = {}
+      this.pageParam.pageNo = 1
+      this.listData()
+    },
   }
 }
 </script>
