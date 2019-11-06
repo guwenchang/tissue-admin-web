@@ -103,7 +103,7 @@
           </template>
         </a-list-item>
       </a-list>
-      <a-button style="width: 100%; margin-top: 16px; margin-bottom: 8px" type="dashed" icon="plus" @click="newIttem">添加素材</a-button>
+      <a-button style="width: 100%; margin-top: 16px; margin-bottom: 8px" type="dashed" icon="plus" @click="handleSelect">添加素材</a-button>
     </a-card>
     <div
       :style="{
@@ -133,10 +133,12 @@
       >
       </video-player>
     </a-modal>
+    <MaterialSelect ref="materialSelect" @selectOk="handleSelectOk" />
   </a-drawer>
 </template>
 
 <script>
+import MaterialSelect from '../material/MaterialSelect'
 import { get, add, update } from '@/api/adTemplate'
 import pick from 'lodash.pick'
 import { listByType } from '@/api/adminDict'
@@ -147,6 +149,7 @@ import 'video.js/dist/video-js.css'
 export default {
   name: 'AdTemplateForm',
   components: {
+    MaterialSelect,
     videoPlayer
   },
   data () {
@@ -202,6 +205,12 @@ export default {
     moment,
     onChange (date, dateString) {
       this.startEndDate = dateString
+    },
+    handleSelectOk (items) {
+      console.log(items)
+    },
+    handleSelect () {
+      this.$refs.materialSelect.select([])
     },
     add () {
       this.title = '新建模版'
@@ -278,17 +287,6 @@ export default {
         this.$refs.videoPlayer.player.pause()
       }
       this.preview = false
-    },
-    newIttem () {
-      this.mdl.items.push({
-        materialId: 14,
-        editable: false,
-        materialMame: '小明',
-        materialType: '1',
-        materialUrl: 'https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png',
-        startDate: '2019-11-01',
-        endDate: '2019-11-01'
-      })
     }
   }
 }
