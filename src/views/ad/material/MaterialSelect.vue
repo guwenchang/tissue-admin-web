@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false">
+  <a-modal :width="900" :visible="visible" :title="title" @ok="handleSelectSubmit" @cancel="visible = false">
     <div class="table-page-search-wrapper">
       <a-form layout="inline">
         <a-row :gutter="48">
@@ -41,7 +41,6 @@
 
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd()">新建</a-button>
-      <a-button type="primary" icon="plus" @click="handleSelect()">素材选择</a-button>
     </div>
     <a-list
       :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
@@ -53,25 +52,18 @@
         <template>
           <a-card :hoverable="true" style="width:240px">
             <img
-              style="width:240px;height:300px;"
+              class="select-class"
+              @click="handleSelect(item)"
               :alt="item.name"
               :src="item.materialType === '1' ? item.url : 'http://img.iweichan.com/video.jpeg'"
               slot="cover"
             />
-            <template class="ant-card-actions" slot="actions">
-              <a-icon type="search" @click="handlePreview(item)" />
-              <a-icon type="edit" @click="handleEdit(item)" />
-              <a-icon type="delete" @click="handleDelete(item)" />
-            </template>
             <a-card-meta :description="item.name">
             </a-card-meta>
           </a-card>
         </template>
       </a-list-item>
     </a-list>
-    <MaterialForm ref="createModal" @ok="handleOk" />
-    <MaterialSelect ref="materialSelect" @selectOk="handleSelectOk" />
-
     <a-modal :visible="preview" :footer="null" @cancel="handleCancel">
       <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
       <video-player
@@ -83,36 +75,29 @@
       >
       </video-player>
     </a-modal>
-
-  </a-card>
+  </a-modal>
 </template>
 
 <script>
-import MaterialForm from './MaterialForm'
-import MaterialSelect from './MaterialSelect'
-import { page, remove } from '@/api/adMaterial'
+import { page } from '@/api/adMaterial'
 import { listByType } from '@/api/adminDict'
 import { videoPlayer } from 'vue-video-player'
 import 'video.js/dist/video-js.css'
-const statusMap = {
-  1: '启用',
-  2: '禁用'
-}
 export default {
-  name: 'MaterialList',
+  name: 'MaterialSelect',
   components: {
-    MaterialForm,
-    MaterialSelect,
     videoPlayer
   },
   data () {
     return {
+      visible: false,
+      title: '',
       loading: true,
       dataSource: [],
+      selectItems: [],
       preview: false,
       previewUrl: '',
       previewType: '1',
-      // 查询参数
       queryParam: {},
       materialTypeList: [],
       sizeTypeList: [],
@@ -148,34 +133,16 @@ export default {
       }
     }
   },
-  filters: {
-    statusFilter (type) {
-      return statusMap[type]
-    }
-  },
   created () {
     listByType('material_type').then(res => {
       this.materialTypeList = res.data
-      const map = {}
-      for (var item of this.materialTypeList) {
-        map[item.value] = item.label
-      }
-      this.materialTypeMap = map
     })
     listByType('size_type').then(res => {
       this.sizeTypeList = res.data
-      const map = {}
-      for (var item of this.sizeTypeList) {
-        map[item.value] = item.label
-      }
-      this.sizeTypeMap = map
     })
     this.listData()
   },
   methods: {
-    handleSelectOk (items) {
-      console.log(items)
-    },
     listData () {
       this.loading = true
       page({ ...this.pageParam, ...this.queryParam }).then(res => {
@@ -186,58 +153,46 @@ export default {
         this.loading = false
       })
     },
-    handleAdd () {
-      this.$refs.createModal.add()
+    select (items) {
+      this.title = '选择素材'
+      this.visible = true
+      this.selectItems = items
     },
-    handleSelect () {
-      this.$refs.materialSelect.select([])
+    handleSelect (item) {
+      if (this.selectItems.findIndex(n => n.id === item.id) > -1) {
+        this.selectItems.splice(this.selectItems.findIndex(n => n.id === item.id), 1)
+      } else {
+        this.selectItems.push(item)
+      }
+      console.log(this.selectItems)
     },
-    handleEdit (record) {
-      this.$refs.createModal.edit(record)
-    },
-    handleDelete (record) {
-      const _this = this
-      this.$confirm({
-        title: '确定要删除吗?',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk () {
-          remove(record.id).then(res => {
-            _this.listData()
-          })
-        }
-      })
-    },
-    handlePreview (record) {
+    handlePreview () {
       this.preview = true
-      this.previewUrl = record.url
-      this.previewType = record.materialType
-      if (record.materialType === '2') {
+      this.previewUrl = this.mdl.url
+      this.previewType = this.mdl.materialType
+      if (this.mdl.materialType === '2') {
         this.playerOptions.sources = [{
-          src: record.url, // 路径
+          src: this.mdl.url, // 路径
           type: 'video/mp4'// 类型
         }]
       }
+    },
+    handleSelectSubmit () {
+      this.$emit('selectOk', this.selectItems)
+      this.visible = false
     },
     handleCancel () {
       if (this.previewType === '2') {
         this.$refs.videoPlayer.player.pause()
       }
       this.preview = false
-    },
-    handleReset () {
-      this.queryParam = {}
-      this.pageParam.pageNo = 1
-      this.listData()
-    },
-    handleOk () {
-      this.$message.info(`保存成功`)
-      this.pageParam.pageNo = 1
-      this.listData()
     }
   }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
+.select-class {
+  width:240px;
+  height:300px;
+}
 </style>
