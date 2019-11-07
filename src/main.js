@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store/'
 import { VueAxios } from './utils/request'
+import BaiduMap from 'vue-baidu-map'
 
 // mock
 import './mock'
@@ -18,7 +19,10 @@ Vue.config.productionTip = false
 
 // mount axios Vue.$http and this.$http
 Vue.use(VueAxios)
-
+Vue.use(BaiduMap, {
+  // ak 是在百度地图开发者平台申请的密钥 详见 http://lbsyun.baidu.com/apiconsole/key */
+  ak: 'OVM3qte3iiPTQhrtNWN1xkWNGFklsM5i'
+})
 new Vue({
   router,
   store,

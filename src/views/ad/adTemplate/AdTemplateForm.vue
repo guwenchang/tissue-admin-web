@@ -207,10 +207,11 @@ export default {
       this.startEndDate = dateString
     },
     handleSelectOk (items) {
+      this.mdl.items = items
       console.log(items)
     },
     handleSelect () {
-      this.$refs.materialSelect.select([])
+      this.$refs.materialSelect.select(this.mdl.items)
     },
     add () {
       this.title = '新建模版'

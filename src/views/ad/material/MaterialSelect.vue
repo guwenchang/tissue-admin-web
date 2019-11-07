@@ -50,9 +50,9 @@
     >
       <a-list-item slot="renderItem" slot-scope="item">
         <template>
-          <a-card :hoverable="true" style="width:240px">
+          <a-card :hoverable="true" style="width:240px" :class="[isSelected(item) ? 'select-item' : '']">
             <img
-              class="select-class"
+              class="img-class"
               @click="handleSelect(item)"
               :alt="item.name"
               :src="item.materialType === '1' ? item.url : 'http://img.iweichan.com/video.jpeg'"
@@ -158,13 +158,23 @@ export default {
       this.visible = true
       this.selectItems = items
     },
+    isSelected (item) {
+      return this.selectItems.findIndex(n => n.materialId === item.id) > -1
+    },
     handleSelect (item) {
       if (this.selectItems.findIndex(n => n.id === item.id) > -1) {
-        this.selectItems.splice(this.selectItems.findIndex(n => n.id === item.id), 1)
+        this.selectItems.splice(this.selectItems.findIndex(n => n.materialId === item.id), 1)
       } else {
-        this.selectItems.push(item)
+        this.selectItems.push({
+          materialId: item.id,
+          editable: false,
+          materialMame: item.name,
+          materialType: item.materialType,
+          materialUrl: item.url,
+          startDate: '2019-11-01',
+          endDate: '2019-11-01'
+        })
       }
-      console.log(this.selectItems)
     },
     handlePreview () {
       this.preview = true
@@ -191,13 +201,18 @@ export default {
       this.queryParam = {}
       this.pageParam.pageNo = 1
       this.listData()
-    },
+    }
   }
 }
 </script>
 <style lang="less" scoped>
-.select-class {
+.img-class {
   width:240px;
   height:300px;
+}
+.select-item {
+  border-style: solid;
+  border-color: #1890ff;
+  border-width: 1px;
 }
 </style>

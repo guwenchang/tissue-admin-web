@@ -53,7 +53,7 @@
             :labelCol="labelCol"
             :wrapperCol="wrapperCol"
           >
-            <a-input placeholder="详细地址" v-decorator="['address']" />
+            <a-input placeholder="详细地址" @change="onAddressChange" v-decorator="['address']" />
           </a-form-item>
         </a-col>
       </a-row>
@@ -154,6 +154,13 @@
         </a-col>
       </a-row>
     </a-form>
+    <baidu-map class="map" :center="center" :zoom="zoom">
+      <bm-view class="map"></bm-view>
+      <bm-marker :position="center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE">
+        <bm-label content="在这里" style="{color: 'red', fontSize : '24px'}" :offset="{width: -35, height: 30}"/>
+      </bm-marker>
+      <bm-local-search :keyword="keyword" :auto-viewport="true" @infohtmlset="handleAddressSelect"></bm-local-search>
+    </baidu-map>
     <div
       :style="{
         position: 'absolute',
@@ -201,6 +208,9 @@ export default {
       userList: [],
       title: '',
       options: options,
+      center: { lng: 116.404, lat: 39.915 },
+      zoom: 15,
+      keyword: '',
       form: this.$form.createForm(this)
     }
   },
@@ -216,6 +226,15 @@ export default {
     })
   },
   methods: {
+    onAddressChange (e) {
+      this.keyword = e.target.value
+    },
+    handleAddressSelect (poi) {
+      this.form.setFieldsValue({ address: poi.address })
+      this.mdl.address = poi.address
+      this.mdl.latitude = poi.point.lat
+      this.mdl.longitude = poi.point.lng
+    },
     onChange (value, selectedOptions) {
       this.mdl.province = value[0]
       this.mdl.city = value[1]
@@ -223,15 +242,21 @@ export default {
       this.mdl.areaInfo = selectedOptions.map(item => item.label).join('/')
     },
     add () {
+      this.form.resetFields()
       this.title = '新建机构'
       this.visible = true
+      this.keyword = ''
+      this.center = { lng: 116.404, lat: 39.915 }
       this.mdl = {
         agentId: this.$store.getters.userInfo.agentId === 0 ? undefined : this.$store.getters.userInfo.agentId,
         name: '',
         status: true,
         taskErrorRemind: true,
-        deviceOffRemind: false
+        deviceOffRemind: false,
+        longitude: undefined,
+        latitude: undefined
       }
+      console.log(this.mdl)
       this.$nextTick(() => {
         this.form.setFieldsValue({ ...this.mdl })
       })
@@ -239,10 +264,16 @@ export default {
     edit (record) {
       get(record.id).then(res => {
         this.mdl = res.data
+        this.center = {
+          lat: this.mdl.latitude,
+          lng: this.mdl.longitude
+        }
+        console.log(this.center)
         this.mdl.status = this.mdl.status === 1
         this.mdl.areas = [this.mdl.province, this.mdl.city, this.mdl.area]
         this.visible = true
         this.title = '编辑机构'
+        this.keyword = ''
         this.$nextTick(() => {
           this.form.setFieldsValue(pick(this.mdl, 'agentId', 'areas', 'address', 'dryWipesPrice', 'wetWipesPrice',
             'cycleTime', 'adTemplateId', 'taskErrorRemind', 'deviceOffRemind', 'ownerId', 'name', 'status'))
@@ -275,4 +306,8 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+  .map{
+    width: 100%;
+    height: 400px;
+  }
 </style>

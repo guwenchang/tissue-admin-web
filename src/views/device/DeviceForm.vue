@@ -190,6 +190,8 @@ export default {
       const { form: { validateFields } } = this
       this.visible = true
       validateFields((errors, values) => {
+        values['openTime'] = values['openTime'].format('HH:mm')
+        values['closeTime'] = values['closeTime'].format('HH:mm')
         if (!errors) {
           update(Object.assign(this.mdl, values))
             .then(res => {
