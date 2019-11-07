@@ -41,7 +41,6 @@
 
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd()">新建</a-button>
-      <a-button type="primary" icon="plus" @click="handleSelect()">素材选择</a-button>
     </div>
     <a-list
       :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
@@ -70,7 +69,6 @@
       </a-list-item>
     </a-list>
     <MaterialForm ref="createModal" @ok="handleOk" />
-    <MaterialSelect ref="materialSelect" @selectOk="handleSelectOk" />
 
     <a-modal :visible="preview" :footer="null" @cancel="handleCancel">
       <img v-if="previewType === '1'" style="width: 100%" :src="previewUrl" />
@@ -89,7 +87,6 @@
 
 <script>
 import MaterialForm from './MaterialForm'
-import MaterialSelect from './MaterialSelect'
 import { page, remove } from '@/api/adMaterial'
 import { listByType } from '@/api/adminDict'
 import { videoPlayer } from 'vue-video-player'
@@ -102,7 +99,6 @@ export default {
   name: 'MaterialList',
   components: {
     MaterialForm,
-    MaterialSelect,
     videoPlayer
   },
   data () {
@@ -173,9 +169,6 @@ export default {
     this.listData()
   },
   methods: {
-    handleSelectOk (items) {
-      console.log(items)
-    },
     listData () {
       this.loading = true
       page({ ...this.pageParam, ...this.queryParam }).then(res => {

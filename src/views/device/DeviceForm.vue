@@ -179,7 +179,6 @@ export default {
         this.mdl.closeTime = moment(this.mdl.closeTime, 'HH:mm')
         this.visible = true
         this.title = '编辑设备'
-        console.log(this.mdl)
         this.$nextTick(() => {
           this.form.setFieldsValue(pick(this.mdl, 'agentId', 'placeId', 'deviceCode', 'deviceId', 'position',
             'status', 'openTime', 'closeTime'))

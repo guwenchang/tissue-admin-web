@@ -36,7 +36,6 @@ export default {
   methods: {
     edit (record) {
       get(record.id).then(res => {
-        console.log(res)
         this.id = record.id
         this.visible = true
         this.title = record.roleName + '-分配权限'

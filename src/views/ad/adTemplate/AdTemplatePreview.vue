@@ -69,7 +69,6 @@ export default {
       this.visible = true
     },
     handleCancel () {
-      console.log(this.$refs.videoPlayer)
       this.visible = false
       this.items = []
     }

@@ -208,7 +208,6 @@ export default {
     },
     handleSelectOk (items) {
       this.mdl.items = items
-      console.log(items)
     },
     handleSelect () {
       this.$refs.materialSelect.select(this.mdl.items)
@@ -261,7 +260,6 @@ export default {
       })
     },
     handleEdit (item) {
-      console.log(item)
       item.editable = true
     },
     handleSave (item) {
