@@ -36,7 +36,11 @@ const constantRouterComponents = {
   // 机构管理
   'Place': () => import('@/views/place/Place'),
   // 设备管理
-  'Device': () => import('@/views/device/Device')
+  'Device': () => import('@/views/device/Device'),
+  // 订单管理 订单列表
+  'Order': () => import('@/views/order/Order'),
+  // 订单管理 扫码列表
+  'Scan': () => import('@/views/order/Scan')
 }
 
 // 前端未找到页面路由（固定不用改）
