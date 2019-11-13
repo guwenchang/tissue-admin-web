@@ -65,10 +65,29 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <a-form-item
+            label="流程图"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <img
+              @click="handleFlowChatSelect"
+              v-if="mdl.flowChatUrl"
+              style="width:240px;height:240px;"
+              alt="流程图"
+              :src="mdl.flowChatUrl"
+            />
+            <a-button v-if="!mdl.flowChatUrl" type="primary" icon="plus" @click="handleFlowChatSelect()">选择流程图</a-button>
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
     <!-- table -->
     <a-card>
       <a-list
+        header="广告模版项目"
         :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
         :dataSource="mdl.items"
       >
@@ -134,6 +153,7 @@
       </video-player>
     </a-modal>
     <MaterialSelect ref="materialSelect" @selectOk="handleSelectOk" />
+    <MaterialSelect ref="flowChatSelect" @selectOk="handleFlowChatSelectOk" />
   </a-drawer>
 </template>
 
@@ -212,6 +232,14 @@ export default {
     handleSelect () {
       this.$refs.materialSelect.select(this.mdl.items)
     },
+    handleFlowChatSelect () {
+      this.$refs.flowChatSelect.select([])
+    },
+    handleFlowChatSelectOk (items) {
+      if (items.length > 0) {
+        this.mdl.flowChatUrl = items[0].materialUrl
+      }
+    },
     add () {
       this.title = '新建模版'
       this.visible = true
@@ -219,6 +247,7 @@ export default {
         agentId: this.$store.getters.userInfo.agentId === 0 ? undefined : this.$store.getters.userInfo.agentId,
         templateType: undefined,
         name: '',
+        flowChatUrl: '',
         status: true,
         items: []
       }

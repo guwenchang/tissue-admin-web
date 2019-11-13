@@ -64,7 +64,7 @@
             :labelCol="labelCol"
             :wrapperCol="wrapperCol"
           >
-            <a-input-number placeholder="干纸巾价格" :min="0" :max="10" :step="0.1" v-decorator="['dryWipesPrice',{rules:[{required: true, message: '请输入干纸巾价格'}]}]" />
+            <a-input-number placeholder="干纸巾价格" :min="0" :step="0.1" v-decorator="['dryWipesPrice',{rules:[{required: true, message: '请输入干纸巾价格'}]}]" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
@@ -73,7 +73,27 @@
             :labelCol="labelCol"
             :wrapperCol="wrapperCol"
           >
-            <a-input-number placeholder="湿纸巾价格" :min="0" :max="10" :step="0.1" v-decorator="['wetWipesPrice',{rules:[{required: true, message: '请输入干纸巾价格'}]}]" />
+            <a-input-number placeholder="湿纸巾价格" :min="0" :step="0.1" v-decorator="['wetWipesPrice',{rules:[{required: true, message: '请输入干纸巾价格'}]}]" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row class="form-row" type="flex">
+        <a-col :span="12">
+          <a-form-item
+            label="干纸巾预警数量"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-input-number placeholder="干纸巾预警数量" :min="0" :step="1" v-decorator="['dryWarnCount',{rules:[{required: true, message: '请输入干纸巾预警数量'}]}]" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item
+            label="湿纸巾预警数量"
+            :labelCol="labelCol"
+            :wrapperCol="wrapperCol"
+          >
+            <a-input-number placeholder="湿纸巾预警数量" :min="0" :step="1" v-decorator="['wetWarnCount',{rules:[{required: true, message: '请输入干纸巾预警数量'}]}]" />
           </a-form-item>
         </a-col>
       </a-row>
@@ -84,7 +104,7 @@
             :labelCol="labelCol"
             :wrapperCol="wrapperCol"
           >
-            <a-input-number placeholder="广告轮播时间(秒)" v-decorator="['cycleTime']" :min="1" :max="100" />
+            <a-input-number placeholder="广告轮播时间(秒)" v-decorator="['cycleTime', {rules:[{required: true, message: '请输入广告轮播时间(秒)'}]}]" :min="1" />
           </a-form-item>
         </a-col>
         <a-col :span="12">
@@ -275,7 +295,7 @@ export default {
         this.title = '编辑机构'
         this.keyword = ''
         this.$nextTick(() => {
-          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'areas', 'address', 'dryWipesPrice', 'wetWipesPrice',
+          this.form.setFieldsValue(pick(this.mdl, 'agentId', 'areas', 'address', 'dryWipesPrice', 'wetWipesPrice', 'dryWarnCount', 'wetWarnCount',
             'cycleTime', 'adTemplateId', 'taskErrorRemind', 'deviceOffRemind', 'ownerId', 'name', 'status'))
         })
       })
