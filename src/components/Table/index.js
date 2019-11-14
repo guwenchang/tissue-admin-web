@@ -255,7 +255,7 @@ export default {
         return props[k]
       }
       if (k === 'rowSelection') {
-        if (showAlert && this.rowSelection) {
+        if (this.rowSelection) {
           // 如果需要使用alert，则重新绑定 rowSelection 事件
           props[k] = {
             ...this.rowSelection,

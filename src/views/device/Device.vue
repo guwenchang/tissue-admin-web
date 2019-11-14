@@ -17,12 +17,18 @@
         </a-row>
       </a-form>
     </div>
+    <div class="table-operator" v-if="selectedRowKeys.length > 0">
+      <a-button type="primary" icon="poweroff" @click="$refs.createModal.add()">关机</a-button>
+      <a-button type="primary" icon="reload" @click="$refs.createModal.add()">重启</a-button>
+      <a-button type="primary" icon="setting" @click="$refs.createModal.add()">设置休眠时间</a-button>
+    </div>
     <s-table
       ref="table"
       size="default"
       rowKey="id"
       :columns="columns"
       :data="loadData"
+      :rowSelection="rowSelection"
       showPagination="auto"
     >
       <span slot="status" slot-scope="status">
@@ -117,6 +123,14 @@ export default {
           scopedSlots: { customRender: 'action' }
         }
       ],
+      selectedRowKeys: [],
+      selectedRows: [],
+      alert: { show: true, clear: () => { this.selectedRowKeys = [] } },
+      rowSelection: {
+        selectedRowKeys: this.selectedRowKeys,
+        selectedRows: this.selectedRows,
+        onChange: this.onSelectChange
+      },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         return page(Object.assign(parameter, this.queryParam))
@@ -160,6 +174,12 @@ export default {
     handleOk () {
       this.$message.info(`保存成功`)
       this.$refs.table.refresh()
+    },
+    onSelectChange (selectedRowKeys, selectedRows) {
+      this.selectedRowKeys = selectedRowKeys
+      this.selectedRows = selectedRows
+      console.log(this.selectedRowKeys)
+      console.log(this.selectedRows)
     }
   }
 }
