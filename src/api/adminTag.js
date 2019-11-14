@@ -8,6 +8,13 @@ export function page (parameter) {
   })
 }
 
+export function list (parameter) {
+  return axios({
+    url: '/sys/sys-tag/list?' + qs.stringify(parameter),
+    method: 'get'
+  })
+}
+
 export function add (parameter) {
   return axios({
     url: '/sys/sys-tag',
