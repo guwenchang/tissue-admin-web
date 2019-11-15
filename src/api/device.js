@@ -36,3 +36,27 @@ export function remove (id) {
     method: 'delete'
   })
 }
+
+export function powerOff (parameter) {
+  return axios({
+    url: '/device/powerOff',
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function restart (parameter) {
+  return axios({
+    url: '/device/restart',
+    method: 'post',
+    data: parameter
+  })
+}
+
+export function sleepSetting (parameter) {
+  return axios({
+    url: '/device/sleepSetting',
+    method: 'post',
+    data: parameter
+  })
+}

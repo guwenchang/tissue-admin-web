@@ -18,14 +18,14 @@
       </a-form>
     </div>
     <div class="table-operator" v-if="selectedRowKeys.length > 0">
-      <a-button type="primary" icon="poweroff" @click="$refs.createModal.add()">关机</a-button>
-      <a-button type="primary" icon="reload" @click="$refs.createModal.add()">重启</a-button>
-      <a-button type="primary" icon="setting" @click="$refs.createModal.add()">设置休眠时间</a-button>
+      <a-button type="primary" icon="poweroff" @click="handlePowerOff()">关机</a-button>
+      <a-button type="primary" icon="reload" @click="handleRestart()">重启</a-button>
+      <a-button type="primary" icon="setting" @click="handleSleepSetting()">设置休眠时间</a-button>
     </div>
     <s-table
       ref="table"
       size="default"
-      rowKey="id"
+      rowKey="deviceId"
       :columns="columns"
       :data="loadData"
       :rowSelection="rowSelection"
@@ -44,13 +44,22 @@
       </span>
     </s-table>
     <DeviceForm ref="createModal" @ok="handleOk" />
+    <a-modal title="设置休眠时间" :visible="sleepSetting" @ok="handleSleepSettingSubmit" @cancel="sleepSetting = false">
+      <a-form layout="inline">
+        <a-form-item label="休眠起止时间">
+          <a-time-picker v-model="sleepSettingParam.startTime" format="HH:mm" />
+          <a-time-picker v-model="sleepSettingParam.endTime" format="HH:mm" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
 import DeviceForm from './DeviceForm'
-import { page, remove } from '@/api/device'
+import { page, powerOff, restart, sleepSetting } from '@/api/device'
+import moment from 'moment'
 
 const statusMap = {
   1: {
@@ -137,7 +146,9 @@ export default {
           .then(res => {
             return res.data
           })
-      }
+      },
+      sleepSetting: false,
+      sleepSettingParam: {}
     }
   },
   filters: {
@@ -150,21 +161,67 @@ export default {
   },
   created () {},
   methods: {
+    moment,
     handleEdit (record) {
       this.$refs.createModal.edit(record)
     },
-    handleDelete (id) {
+    handlePowerOff () {
       const _this = this
+      const param = {
+        deviceIds: this.selectedRowKeys
+      }
       this.$confirm({
-        title: '确定要删除吗?',
+        title: '确定要将选中设备关机吗?',
         okText: '确定',
         okType: 'danger',
         cancelText: '取消',
         onOk () {
-          remove(id).then(res => {
+          powerOff(param).then(res => {
             _this.$refs.table.refresh(true)
           })
         }
+      })
+    },
+    handleRestart () {
+      const _this = this
+      const param = {
+        deviceIds: this.selectedRowKeys
+      }
+      this.$confirm({
+        title: '确定要将选中设重启吗?',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk () {
+          restart(param).then(res => {
+            _this.$refs.table.refresh(true)
+          })
+        }
+      })
+    },
+    handleSleepSetting (item) {
+      if (item) {
+        this.sleepSettingParam.startTime = moment(item.startTime, 'HH:mm')
+        this.sleepSettingParam.endTime = moment(item.endTime, 'HH:mm')
+        this.sleepSettingParam.deviceIds = [item.deviceId]
+      } else {
+        this.sleepSettingParam = {}
+      }
+      this.sleepSetting = true
+    },
+    handleSleepSettingSubmit () {
+      const _this = this
+      if (this.sleepSettingParam.deviceIds === undefined) {
+        this.sleepSettingParam.deviceIds = this.selectedRowKeys
+      }
+      const param = {
+        deviceIds: this.sleepSettingParam.deviceIds,
+        startTime: this.sleepSettingParam.startTime.format('HH:mm'),
+        endTime: this.sleepSettingParam.endTime.format('HH:mm')
+      }
+      sleepSetting(param).then(res => {
+        _this.$refs.table.refresh(true)
+        _this.sleepSetting = false
       })
     },
     handleReset () {
