@@ -31,7 +31,7 @@ import { videoPlayer } from 'vue-video-player'
 import 'video.js/dist/video-js.css'
 import { nowBetweenDate } from '@/utils/util'
 export default {
-  name: 'AdTemplatePreview',
+  name: 'TemplatePreview',
   components: {
     videoPlayer
   },

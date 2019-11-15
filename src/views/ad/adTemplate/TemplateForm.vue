@@ -167,7 +167,7 @@ import moment from 'moment'
 import { videoPlayer } from 'vue-video-player'
 import 'video.js/dist/video-js.css'
 export default {
-  name: 'AdTemplateForm',
+  name: 'TemplateForm',
   components: {
     MaterialSelect,
     videoPlayer

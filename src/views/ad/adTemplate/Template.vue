@@ -63,15 +63,15 @@
         </template>
       </span>
     </s-table>
-    <AdTemplateForm ref="createModal" @ok="handleOk" />
-    <AdTemplatePreview ref="previewModal"/>
+    <TemplateForm ref="createModal" @ok="handleOk" />
+    <TemplatePreview ref="previewModal"/>
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
-import AdTemplateForm from './AdTemplateForm'
-import AdTemplatePreview from './AdTemplatePreview'
+import TemplateForm from './TemplateForm'
+import TemplatePreview from './TemplatePreview'
 import { page, get, remove } from '@/api/adTemplate'
 import { listByType } from '@/api/adminDict'
 
@@ -86,12 +86,12 @@ const statusMap = {
 let that
 
 export default {
-  name: 'AdTemplateList',
+  name: 'TemplateList',
   components: {
     STable,
     Ellipsis,
-    AdTemplateForm,
-    AdTemplatePreview
+    TemplateForm,
+    TemplatePreview
   },
   data () {
     return {

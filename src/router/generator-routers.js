@@ -28,7 +28,9 @@ const constantRouterComponents = {
 
   // 广告管理
   'AdMaterial': () => import('@/views/ad/material/Material'),
-  'AdTemplate': () => import('@/views/ad/adTemplate/AdTemplate'),
+  'AdTemplate': () => import('@/views/ad/adTemplate/Template'),
+  'AdMerchant': () => import('@/views/ad/merchant/Merchant'),
+  'AdOrder': () => import('@/views/ad/order/Order'),
 
   // 代理商管理
   'Agent': () => import('@/views/agent/Agent'),
