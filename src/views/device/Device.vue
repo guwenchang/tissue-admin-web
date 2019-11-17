@@ -40,6 +40,14 @@
       <span slot="action" slot-scope="text,record">
         <template>
           <a @click="handleEdit(record)">修改</a>
+          <a-divider type="vertical" />
+          <a-dropdown>
+            <a-menu slot="overlay">
+              <a-menu-item @click="handleAddWipe(record)"><a>加纸</a></a-menu-item>
+              <a-menu-item @click="handleQrCodePreview(record)"><a>二维码</a></a-menu-item>
+            </a-menu>
+            <a>更多<a-icon type="down"/></a>
+          </a-dropdown>
         </template>
       </span>
     </s-table>
@@ -52,13 +60,53 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-modal title="加纸" :visible="addWipe" @ok="handleAddWipeSubmit" @cancel="addWipe = false">
+      <a-form>
+        <a-form-item
+          label="设备编号"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <span class="ant-form-text">
+            设备编码 {{ addItem.deviceCode }}
+          </span>
+        </a-form-item>
+        <a-form-item
+          label="纸巾余量"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <span class="ant-form-text">
+            干纸巾余量 {{ addItem.dryWipesCount }},
+            干纸巾余量 {{ addItem.wetWipesCount }},
+          </span>
+        </a-form-item>
+        <a-form-item
+          label="干纸巾数量"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <a-input-number placeholder="干纸巾数量" :min="0" :step="1" v-model="addWipeParam.dryWipesCount" />
+        </a-form-item>
+        <a-form-item
+          label="湿纸巾数量"
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+        >
+          <a-input-number placeholder="湿纸巾数量" :min="0" :step="1" v-model="addWipeParam.wetWipesCount" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    <a-modal :title="qrCodePreviewItem.deviceCode+'-的二维码'" :visible="qrCodePreview" @ok="qrCodePreview = false" @cancel="qrCodePreview = false">
+      <img style="width: 400px;height:400px" :src="qrCodePreviewItem.qrCode" />
+    </a-modal>
   </a-card>
 </template>
 
 <script>
 import { STable, Ellipsis } from '@/components'
 import DeviceForm from './DeviceForm'
-import { page, powerOff, restart, sleepSetting } from '@/api/device'
+import { page, powerOff, restart, sleepSetting, addWipe } from '@/api/device'
 import moment from 'moment'
 
 const statusMap = {
@@ -91,6 +139,14 @@ export default {
   },
   data () {
     return {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 13 }
+      },
       // 查询参数
       queryParam: {},
       // 表头
@@ -148,7 +204,16 @@ export default {
           })
       },
       sleepSetting: false,
-      sleepSettingParam: {}
+      sleepSettingParam: {},
+      addWipe: false,
+      addItem: {},
+      addWipeParam: {
+        deviceId: '',
+        dryWipesCount: 0,
+        wetWipesCount: 0
+      },
+      qrCodePreview: false,
+      qrCodePreviewItem: {}
     }
   },
   filters: {
@@ -164,6 +229,26 @@ export default {
     moment,
     handleEdit (record) {
       this.$refs.createModal.edit(record)
+    },
+    handleQrCodePreview (record) {
+      this.qrCodePreviewItem = record
+      this.qrCodePreview = true
+    },
+    handleAddWipe (record) {
+      this.addItem = record
+      this.addWipeParam = {
+        deviceId: this.addItem.deviceId,
+        dryWipesCount: 0,
+        wetWipesCount: 0
+      }
+      this.addWipe = true
+    },
+    handleAddWipeSubmit () {
+      const _this = this
+      addWipe(this.addWipeParam).then(res => {
+        _this.$refs.table.refresh(true)
+        _this.addWipe = false
+      })
     },
     handlePowerOff () {
       const _this = this

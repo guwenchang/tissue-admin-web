@@ -60,3 +60,11 @@ export function sleepSetting (parameter) {
     data: parameter
   })
 }
+
+export function addWipe (parameter) {
+  return axios({
+    url: '/device/addWipe',
+    method: 'post',
+    data: parameter
+  })
+}
